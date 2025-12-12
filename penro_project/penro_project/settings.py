@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'accounts',
     'main',
     'submission_settings.apps.SubmissionSettingsConfig',
-    'submission_management.apps.SubmissionManagementConfig',
+
 
 ]
 

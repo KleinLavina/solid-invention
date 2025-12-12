@@ -4,7 +4,7 @@
 
     <ul class="nav flex-column" id="navMenu">
         <li class="nav-item">
-            <a href="#" class="nav-link text-white active" data-page="dashboard">
+            <a href="{% url 'main:admin' %}" class="nav-link text-white active" class="nav-link text-white">
                 <i class="fas fa-tachometer-alt"></i> Dashboard
             </a>
         </li>
@@ -14,18 +14,18 @@
             </a>
         </li>
         <li class="nav-item">
-            <a href="#" class="nav-link text-white" data-page="tracking">
-                <i class="fas fa-check-circle"></i> Submission Tracking
+            <a href="{% url 'main:deadline-list' %}" class="nav-link text-white" class="nav-link text-white">
+                <i class="fas fa-check-circle"></i> Report Submission Settings
             </a>
         </li>
         <li class="nav-item">
-            <a href="#" class="nav-link text-white" data-page="reports">
-                <i class="fas fa-chart-line"></i> Performance Reports
+            <a href="" class="nav-link text-white" class="nav-link text-white">
+                <i class="fas fa-chart-line"></i> Review & Feedback
             </a>
         </li>
         <li class="nav-item">
-            <a href="#" class="nav-link text-white" data-page="management">
-                <i class="fas fa-users"></i> Worker & Task Management
+            <a href="" class="nav-link text-white" class="nav-link text-white">
+                <i class="fas fa-users"></i> Report Analytics
             </a>
         </li>
     </ul>

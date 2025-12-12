@@ -1,17 +1,18 @@
+# submission_settings/signals.py
 from datetime import datetime, timedelta
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 
 from .models import (
-    DeadlineSubmissionSetting,
-    SubmissionStatus,
-    DeadlineReminder,
-    Notification,
+    ReportDeadlineSetting,
+    ReportSubmission,
+    SubmissionReminder,
+    UserNotification,
 )
 
 
-@receiver(post_save, sender=DeadlineSubmissionSetting)
+@receiver(post_save, sender=ReportDeadlineSetting)
 def create_status_and_reminders(sender, instance, created, **kwargs):
     if not created:
         return
@@ -25,10 +26,10 @@ def create_status_and_reminders(sender, instance, created, **kwargs):
 
     #
     # ============================================================
-    # 1️⃣ CREATE SUBMISSION STATUS FOR EACH WORKER (AUTO STATUS)
+    # 1️⃣ CREATE SUBMISSION RECORD FOR EACH WORKER (AUTO STATUS)
     # ============================================================
     #
-    submission_status_objects = []
+    submission_objects = []
 
     for user in workers:
         # Determine initial status
@@ -39,15 +40,15 @@ def create_status_and_reminders(sender, instance, created, **kwargs):
         else:
             status = "late_overdue"
 
-        submission_status_objects.append(
-            SubmissionStatus(
-                deadline_setting=instance,
+        submission_objects.append(
+            ReportSubmission(
+                deadline=instance,   # <- use 'deadline' (new field name)
                 user=user,
                 status=status
             )
         )
 
-    SubmissionStatus.objects.bulk_create(submission_status_objects)
+    ReportSubmission.objects.bulk_create(submission_objects)
 
     #
     # ============================================================
@@ -57,7 +58,6 @@ def create_status_and_reminders(sender, instance, created, **kwargs):
     reminder_before_days = 3
     deadline = instance.deadline_date
 
-    # use timezone.localtime() → automatically aware
     reminder_before = timezone.make_aware(
         datetime.combine(
             deadline - timedelta(days=reminder_before_days),
@@ -73,21 +73,21 @@ def create_status_and_reminders(sender, instance, created, **kwargs):
 
     for user in workers:
         reminder_objects.append(
-            DeadlineReminder(
-                deadline_setting=instance,
+            SubmissionReminder(
+                deadline=instance,   # <- use 'deadline' (new field name)
                 user=user,
                 reminder_date=reminder_before
             )
         )
         reminder_objects.append(
-            DeadlineReminder(
-                deadline_setting=instance,
+            SubmissionReminder(
+                deadline=instance,
                 user=user,
                 reminder_date=reminder_deadline_day
             )
         )
 
-    DeadlineReminder.objects.bulk_create(reminder_objects)
+    SubmissionReminder.objects.bulk_create(reminder_objects)
 
     #
     # ============================================================
@@ -99,25 +99,25 @@ def create_status_and_reminders(sender, instance, created, **kwargs):
     )
 
     start_reminders = [
-        DeadlineReminder(
-            deadline_setting=instance,
+        SubmissionReminder(
+            deadline=instance,   # <- use 'deadline'
             user=user,
             reminder_date=start_date_reminder_time
         )
         for user in workers
     ]
-    DeadlineReminder.objects.bulk_create(start_reminders)
+    SubmissionReminder.objects.bulk_create(start_reminders)
 
     #
     # ============================================================
-    # 4️⃣ SEND NOTIFICATION: NEW DEADLINE ASSIGNED
+    # 4️⃣ SEND UserNotification: NEW DEADLINE ASSIGNED
     # ============================================================
     #
     for user in workers:
-        Notification.objects.create(
+        UserNotification.objects.create(
             user=user,
-            submission_status=None,
-            title=f"New Report Deadline Assigned",
+            submission=None,   # <- use 'submission' (new field name). None because this is not tied to a submission yet.
+            title="New Report Deadline Assigned",
             message=(
                 f"A new reporting requirement titled '{instance.title}' "
                 f"has been assigned to your department.\n"

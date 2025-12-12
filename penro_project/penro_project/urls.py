@@ -9,4 +9,5 @@ urlpatterns = [
 
     # Main App
     path('main/', include('main.urls')),
+
 ]

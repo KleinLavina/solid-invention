@@ -116,8 +116,9 @@
 
         <button class="btn btn-primary"
                 data-bs-toggle="modal"
-                data-bs-target="#createModal">
-            + Schedule & Assign Deadline
+                data-bs-target="#createModal"
+                onclick="event.stopPropagation(); this.form.submit();">
+            + Assign and Schedule Deadline
         </button>
     </div>
 
@@ -204,13 +205,15 @@
                 <div class="mt-3 d-flex gap-2">
                     <button class="btn btn-sm btn-outline-primary w-50"
             data-bs-toggle="modal"
-            data-bs-target="#editModal{{ d.obj.id }}">
+            data-bs-target="#editModal{{ d.obj.id }}"
+            onclick="event.stopPropagation()">
         Edit
     </button>
 
                     <button class="btn btn-sm btn-outline-danger w-50"
             data-bs-toggle="modal"
-            data-bs-target="#deleteModal{{ d.obj.id }}">
+            data-bs-target="#deleteModal{{ d.obj.id }}"
+            onclick="event.stopPropagation()">
         Delete
     </button>
 

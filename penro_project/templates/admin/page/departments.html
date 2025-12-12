@@ -9,6 +9,7 @@
     .card-dept {
         transition: transform .2s ease, box-shadow .2s ease;
         cursor: pointer;
+        border-radius: 12px;
     }
     .card-dept:hover {
         transform: translateY(-5px);
@@ -19,7 +20,34 @@
         font-weight: 700;
         color: #155d27;
     }
+    .action-buttons {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        display: flex;
+        gap: 6px;
+        z-index: 3;
+    }
+    .action-buttons button {
+        padding: 2px 8px;
+    }
+    .card-wrapper {
+        position: relative;
+    }
     </style>
+
+    <!-- HEADER ROW -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="mb-0">All Departments</h4>
+
+        <button class="btn btn-primary mb-3"
+            data-bs-toggle="modal"
+            data-bs-target="#departmentCreateModal">
+        + Add Department
+    </button>
+
+    </div>
+
 
     <div class="row g-4">
 
@@ -27,10 +55,12 @@
         <div class="col-md-4">
             <div class="card card-dept p-3 h-100"
                 onclick="window.location.href='/main/admin/departments/0/workers/'">
-            
+
                 <h4 class="fw-bold">All Workers</h4>
                 <p class="text-muted small">All workers across all departments.</p>
+
                 <hr>
+
                 <div class="count-badge">{{ total_workers }}</div>
             </div>
         </div>
@@ -38,20 +68,44 @@
         <!-- INDIVIDUAL DEPARTMENT CARDS -->
         {% for dept in departments %}
         <div class="col-md-4">
-            <div class="card card-dept p-3 h-100"
+            <div class="card card-dept p-3 h-100 card-wrapper"
                 onclick="window.location.href='/main/admin/departments/{{ dept.id }}/workers/'">
 
-                <h4 class="fw-bold">{{ dept.name }}</h4>
-                <p class="text-muted small">{{ dept.description|default:"No description provided." }}</p>
+                <!-- ACTION BUTTONS (STOP CARD CLICK) -->
+                <div class="action-buttons">
+                    <button class="btn btn-sm btn-outline-primary"
+                            data-bs-toggle="modal"
+                            data-bs-target="#departmentEditModal{{ dept.id }}"
+                            onclick="event.stopPropagation()">
+                        Edit
+                    </button>
+
+                    <button class="btn btn-sm btn-outline-danger"
+                            data-bs-toggle="modal"
+                            data-bs-target="#departmentDeleteModal{{ dept.id }}"
+                            onclick="event.stopPropagation()">
+                        Delete
+                    </button>
+                </div>
+
+                <!-- CONTENT -->
+                <h4 class="fw-bold mt-2">{{ dept.name }}</h4>
+
+                <p class="text-muted small">
+                    {{ dept.description|default:"No description provided." }}
+                </p>
 
                 <hr>
 
                 <div class="count-badge">{{ dept.users.count }}</div>
                 <span class="text-muted small">Workers</span>
+
             </div>
         </div>
+{% include "admin/page/modals/department_edit_modal.html" %}
+    {% include "admin/page/modals/department_delete_modal.html" %}
         {% endfor %}
 
     </div>
-
+ {% include "admin/page/modals/department_create_modal.html" %}
     {% endblock %}

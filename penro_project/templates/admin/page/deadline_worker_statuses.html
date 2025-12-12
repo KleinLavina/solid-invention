@@ -29,21 +29,24 @@
     <strong>{{ deadline.title }}</strong><br>
     <small class="text-muted">Department: {{ deadline.department.name }}</small>
 </h4>
- <div class="d-flex justify-content-between align-items-center mb-4">
-        <h4 class="mb-0">All Report Deadlines</h4>
 
-        <button class="btn btn-primary"
-                data-bs-toggle="modal"
-                onclick="window.location.href='/main/admin/deadlines/'">
-            + Schedule & Assign Deadline
-        </button>
-    </div>
+<!-- Header row -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0">Workers Assigned to This Deadline</h4>
+
+    <button class="btn btn-primary"
+            onclick="window.location.href='/main/admin/deadlines/'">
+        ← Return to Deadlines
+    </button>
+</div>
+
 <div class="row g-3">
 
 {% for w in workers %}
     <div class="col-md-4">
         <div class="worker-card">
 
+            <!-- Name + Status -->
             <div class="d-flex justify-content-between">
                 <h6 class="fw-bold mb-1">{{ w.user.get_full_name }}</h6>
 

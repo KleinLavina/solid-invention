@@ -22,27 +22,22 @@ def create_status_and_reminders(sender, instance, created, **kwargs):
     workers = list(department.users.all())
 
     if not workers:
-        return  # no employees in department → no need to continue
+        return
 
-    #
-    # ============================================================
-    # 1️⃣ CREATE SUBMISSION RECORD FOR EACH WORKER (AUTO STATUS)
-    # ============================================================
-    #
+    # 1️⃣ CREATE submission records for every worker
     submission_objects = []
 
     for user in workers:
-        # Determine initial status
         if today < instance.start_date:
             status = "pending"
         elif instance.start_date <= today <= instance.deadline_date:
             status = "in_progress"
         else:
-            status = "late_overdue"
+            status = "overdue"  # FIXED (valid choice)
 
         submission_objects.append(
             ReportSubmission(
-                deadline=instance,   # <- use 'deadline' (new field name)
+                deadline=instance,
                 user=user,
                 status=status
             )
@@ -50,11 +45,7 @@ def create_status_and_reminders(sender, instance, created, **kwargs):
 
     ReportSubmission.objects.bulk_create(submission_objects)
 
-    #
-    # ============================================================
-    # 2️⃣ CREATE REMINDERS (BEFORE DEADLINE + ON DEADLINE)
-    # ============================================================
-    #
+    # 2️⃣ CREATE reminder dates
     reminder_before_days = 3
     deadline = instance.deadline_date
 
@@ -72,55 +63,45 @@ def create_status_and_reminders(sender, instance, created, **kwargs):
     reminder_objects = []
 
     for user in workers:
-        reminder_objects.append(
+        reminder_objects.extend([
             SubmissionReminder(
-                deadline=instance,   # <- use 'deadline' (new field name)
+                deadline=instance,
                 user=user,
                 reminder_date=reminder_before
-            )
-        )
-        reminder_objects.append(
+            ),
             SubmissionReminder(
                 deadline=instance,
                 user=user,
                 reminder_date=reminder_deadline_day
-            )
-        )
+            ),
+        ])
 
     SubmissionReminder.objects.bulk_create(reminder_objects)
 
-    #
-    # ============================================================
-    # 3️⃣ OPTIONAL: CREATE START-DATE REMINDER
-    # ============================================================
-    #
+    # 3️⃣ ADD start-date reminder
     start_date_reminder_time = timezone.make_aware(
         datetime.combine(instance.start_date, datetime.min.time())
     )
 
     start_reminders = [
         SubmissionReminder(
-            deadline=instance,   # <- use 'deadline'
+            deadline=instance,
             user=user,
             reminder_date=start_date_reminder_time
         )
         for user in workers
     ]
+
     SubmissionReminder.objects.bulk_create(start_reminders)
 
-    #
-    # ============================================================
-    # 4️⃣ SEND UserNotification: NEW DEADLINE ASSIGNED
-    # ============================================================
-    #
+    # 4️⃣ NOTIFY workers
     for user in workers:
         UserNotification.objects.create(
             user=user,
-            submission=None,   # <- use 'submission' (new field name). None because this is not tied to a submission yet.
+            submission=None,
             title="New Report Deadline Assigned",
             message=(
-                f"A new reporting requirement titled '{instance.title}' "
-                f"has been assigned to your department.\n"
+                f"A new reporting requirement titled '{instance.title}' has been assigned.\n"
                 f"Start Date: {instance.start_date}\n"
                 f"Deadline: {instance.deadline_date}"
             )

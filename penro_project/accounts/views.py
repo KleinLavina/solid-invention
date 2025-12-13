@@ -43,6 +43,6 @@ def redirect_user_by_role(user):
 
 def logout_view(request):
     logout(request)
-    return redirect("login")
+    return redirect("accounts:login")
 
 

@@ -7,6 +7,7 @@
         {% csrf_token %}
         <input type="hidden" name="workcycle_id" id="reassignWorkcycleId">
 
+        <!-- HEADER -->
         <div class="modal-header">
           <h5 class="modal-title">
             <i class="fas fa-random me-2 text-warning"></i>
@@ -15,67 +16,86 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
 
-        <div class="modal-body">
-          <div class="mb-3">
-            <span class="text-muted small">Work Cycle</span>
-            <div class="fw-semibold" id="reassignWorkcycleTitle">—</div>
-          </div>
+        <!-- BODY -->
+        <div class="modal-body p-0">
+          <div class="p-4 overflow-y-auto" style="max-height:70vh;">
 
-          <div class="mb-4">
-            <span class="text-muted small">Current Assignment</span>
-            <div id="currentAssignment" class="current-assignment-box mt-2"></div>
-          </div>
+            <!-- CONTEXT -->
+            <div class="mb-3">
+              <span class="text-muted small">Work Cycle</span>
+              <div class="fw-semibold" id="reassignWorkcycleTitle">—</div>
+            </div>
 
-          <hr>
-
-          <!-- USERS -->
-          <div class="mb-3" id="reassignUsersSection">
-            <label class="form-label">
-              <i class="fas fa-user me-1"></i> Assign Users
-            </label>
-
-            <div id="reassignUserList">
-              <div class="d-flex align-items-center mb-2 user-row">
-                <select name="users[]" class="form-select">
-                  <option value="">Select user</option>
-                  {% for user in users %}
-                    <option value="{{ user.id }}">
-                      {{ user.get_full_name|default:user.username }}
-                    </option>
-                  {% endfor %}
-                </select>
-                <button type="button"
-                        class="btn btn-outline-danger ms-2 remove-user"
-                        style="display:none;">✕</button>
+            <!-- CURRENT ASSIGNMENT -->
+            <div class="mb-4">
+              <span class="text-muted small">Current Assignment</span>
+              <div id="currentAssignment" class="current-assignment-box mt-2">
+                <!-- Pills injected by JS -->
               </div>
             </div>
 
-            <button type="button"
-                    class="btn btn-sm btn-outline-primary mt-2"
-                    id="reassignAddUserBtn">
-              <i class="fas fa-plus me-1"></i> Add user
-            </button>
-          </div>
+            <hr>
 
-          <!-- TEAM -->
-          <div class="mb-3" id="reassignTeamSection">
-            <label class="form-label">
-              <i class="fas fa-users me-1"></i> Or Assign Team
-            </label>
-            <select name="team" id="reassignTeamSelect" class="form-select">
-              <option value="">Select team</option>
-              {% for team in teams %}
-                <option value="{{ team.id }}">{{ team.name }}</option>
-              {% endfor %}
-            </select>
-          </div>
+            <!-- ASSIGN USERS -->
+            <div class="mb-3" id="reassignUsersSection">
+              <label class="form-label">Assign Users</label>
 
-          <div class="alert alert-warning small mt-3">
-            <i class="fas fa-exclamation-triangle me-1"></i>
-            Changing assignments will archive removed users’ work items.
+              <div id="reassignUserList">
+                <div class="d-flex align-items-center mb-2 user-row">
+                  <div class="input-group">
+                    <span class="input-group-text">
+                      <i class="fas fa-user"></i>
+                    </span>
+                    <select name="users[]" class="form-select">
+                      <option value="">Select a user</option>
+                      {% for user in users %}
+                        <option value="{{ user.id }}">
+                          {{ user.get_full_name|default:user.username }}
+                        </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+
+                  <button type="button"
+                          class="btn btn-outline-danger ms-2 remove-user"
+                          style="display:none;">✕</button>
+                </div>
+              </div>
+
+              <button type="button"
+                      class="btn btn-sm btn-outline-primary mt-2"
+                      id="reassignAddUserBtn">
+                <i class="fas fa-plus me-1"></i> Add user
+              </button>
+            </div>
+
+            <!-- ASSIGN TEAM -->
+            <div class="mb-3" id="reassignTeamSection">
+              <label class="form-label">Or Assign Team</label>
+              <div class="input-group">
+                <span class="input-group-text">
+                  <i class="fas fa-users"></i>
+                </span>
+                <select name="team" id="reassignTeamSelect" class="form-select">
+                  <option value="">Select a team</option>
+                  {% for team in teams %}
+                    <option value="{{ team.id }}">{{ team.name }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+
+            <!-- WARNING -->
+            <div class="alert alert-warning small mt-4">
+              <i class="fas fa-exclamation-triangle me-1"></i>
+              Changing assignments will archive removed users’ work items.
+              Existing submissions will be preserved.
+            </div>
+
           </div>
         </div>
 
+        <!-- FOOTER -->
         <div class="modal-footer">
           <button type="button"
                   class="btn btn-secondary"
@@ -83,11 +103,12 @@
             Cancel
           </button>
           <button type="submit" class="btn btn-warning">
-            Confirm Reassignment
+            <i class="fas fa-check me-1"></i> Confirm Reassignment
           </button>
         </div>
 
       </form>
+
     </div>
   </div>
 </div>
@@ -129,6 +150,10 @@
   border: 1px dashed #ced4da;
   color: #adb5bd;
 }
+
+.input-group-text i {
+  color: #6c757d;
+}
 </style>
 <script>
 document.addEventListener("DOMContentLoaded", () => {
@@ -146,9 +171,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const usersSection = document.getElementById("reassignUsersSection");
   const teamSection = document.getElementById("reassignTeamSection");
 
-  // -----------------------------
-  // Helpers
-  // -----------------------------
   function selectedUsers() {
     return [...userList.querySelectorAll('select[name="users[]"]')]
       .map(s => s.value)
@@ -157,7 +179,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function refreshUserOptions() {
     const selected = selectedUsers();
-
     userList.querySelectorAll('select[name="users[]"]').forEach(select => {
       [...select.options].forEach(opt => {
         if (!opt.value) return;
@@ -179,24 +200,21 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // -----------------------------
-  // ADD USER (THIS WAS MISSING)
-  // -----------------------------
   addUserBtn.addEventListener("click", () => {
     const row = document.createElement("div");
     row.className = "d-flex align-items-center mb-2 user-row";
     row.innerHTML = userList.firstElementChild.innerHTML;
-
-    const removeBtn = row.querySelector(".remove-user");
-    removeBtn.style.display = "inline-block";
-
+    row.querySelector(".remove-user").style.display = "inline-block";
     userList.appendChild(row);
+    refreshUserOptions();
+  });
+
+  userList.addEventListener("change", () => {
     refreshUserOptions();
     toggleSections();
   });
 
-  // Remove user
-  userList.addEventListener("click", (e) => {
+  userList.addEventListener("click", e => {
     if (e.target.classList.contains("remove-user")) {
       e.target.closest(".user-row").remove();
       refreshUserOptions();
@@ -204,18 +222,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Change user selection
-  userList.addEventListener("change", () => {
-    refreshUserOptions();
-    toggleSections();
-  });
-
-  // Team selection
   teamSelect.addEventListener("change", toggleSections);
 
-  // -----------------------------
-  // MODAL OPEN
-  // -----------------------------
   modal.addEventListener("show.bs.modal", (event) => {
     const btn = event.relatedTarget;
 
@@ -234,20 +242,22 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     users.forEach(name => {
-      const pill = document.createElement("span");
-      pill.className = "assignment-pill user";
-      pill.innerHTML = `<i class="far fa-user"></i> ${name}`;
-      currentEl.appendChild(pill);
+      currentEl.insertAdjacentHTML("beforeend", `
+        <span class="assignment-pill user">
+          <i class="far fa-user"></i> ${name}
+        </span>
+      `);
     });
 
     teams.forEach(name => {
-      const pill = document.createElement("span");
-      pill.className = "assignment-pill team";
-      pill.innerHTML = `<i class="fas fa-users"></i> ${name}`;
-      currentEl.appendChild(pill);
+      currentEl.insertAdjacentHTML("beforeend", `
+        <span class="assignment-pill team">
+          <i class="fas fa-users"></i> ${name}
+        </span>
+      `);
     });
 
-    // RESET FORM STATE
+    // Reset inputs
     teamSelect.value = "";
     userList.innerHTML = userList.firstElementChild.outerHTML;
     refreshUserOptions();

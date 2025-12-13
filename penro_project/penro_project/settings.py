@@ -41,9 +41,6 @@ INSTALLED_APPS = [
     'django_crontab',
 
     'accounts',
-    'main',
-    'workers',
-    'submission_settings.apps.SubmissionSettingsConfig',
 
 
 ]
@@ -52,9 +49,7 @@ AUTH_USER_MODEL = 'accounts.User'
 LOGIN_URL = "/auth/login/"
 
 
-CRONJOBS = [
-    ('*/15 * * * *', 'submission_settings.cron.send_deadline_reminders'),  
-]
+
 
 
 MIDDLEWARE = [
@@ -66,6 +61,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "middleware.auth_required.LoginRequiredMiddleware",
+   
 ]
 
 ROOT_URLCONF = 'penro_project.urls'

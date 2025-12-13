@@ -2,12 +2,10 @@ from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('penro/django/admin/', admin.site.urls),
 
     # Login / Logout
     path('auth/', include('accounts.urls')),
+    path('admin/', include('admin_app.urls')),
 
-    # Main App
-    path('main/', include('main.urls')),
-    path('workers/', include('workers.urls')),
 ]

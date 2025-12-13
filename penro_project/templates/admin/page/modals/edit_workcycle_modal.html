@@ -1,0 +1,95 @@
+<!-- EDIT WORK CYCLE MODAL -->
+<div class="modal fade" id="editWorkcycleModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+
+      <form method="post" action="{% url 'admin_app:workcycle-edit' %}">
+        {% csrf_token %}
+        <input type="hidden" name="workcycle_id" id="editWorkcycleId">
+
+        <!-- HEADER -->
+        <div class="modal-header">
+          <h5 class="modal-title">
+            <i class="fas fa-edit me-2 text-primary"></i>
+            Edit Work Cycle
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <!-- BODY -->
+        <div class="modal-body p-0">
+          <div class="p-4 overflow-y-auto" style="max-height:70vh;">
+
+            <!-- TITLE -->
+            <div class="mb-3">
+              <label class="form-label">Title</label>
+              <input type="text"
+                     name="title"
+                     id="editTitle"
+                     class="form-control"
+                     required>
+            </div>
+
+            <!-- DESCRIPTION -->
+            <div class="mb-3">
+              <label class="form-label">Description</label>
+              <textarea name="description"
+                        id="editDescription"
+                        class="form-control"
+                        rows="3"></textarea>
+            </div>
+
+            <!-- DUE DATE -->
+            <div class="mb-3">
+              <label class="form-label">Due Date</label>
+              <input type="text"
+                     name="due_at"
+                     id="editDueDate"
+                     class="form-control"
+                     autocomplete="off"
+                     required>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="modal-footer">
+          <button type="button"
+                  class="btn btn-secondary"
+                  data-bs-dismiss="modal">
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-primary">
+            Save Changes
+          </button>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  const editModal = document.getElementById("editWorkcycleModal");
+
+  editModal.addEventListener("show.bs.modal", function (event) {
+    const btn = event.relatedTarget;
+
+    document.getElementById("editWorkcycleId").value = btn.dataset.id;
+    document.getElementById("editTitle").value = btn.dataset.title;
+    document.getElementById("editDescription").value = btn.dataset.description;
+    document.getElementById("editDueDate").value = btn.dataset.due;
+  });
+
+  flatpickr("#editDueDate", {
+    enableTime: true,
+    dateFormat: "Y-m-d H:i",
+    time_24hr: true,
+    minuteIncrement: 5
+  });
+
+});
+</script>

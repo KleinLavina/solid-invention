@@ -29,8 +29,8 @@
 
   <div>
     <a href="javascript:history.back()"
-       class="btn btn-outline-secondary shadow-sm">
-      <i class="fas fa-arrow-left me-1"></i>
+       class="btn btn-outline-secondary shadow-sm d-flex align-items-center gap-1">
+      <i class="fas fa-arrow-left"></i>
       Back
     </a>
   </div>
@@ -39,9 +39,12 @@
 
 <!-- DONE WORKERS -->
 <div class="card ui-card mb-4">
-  <div class="card-header ui-card-header">
+  <div class="card-header ui-card-header d-flex align-items-center gap-2">
     <i class="fas fa-check-circle text-success"></i>
-    Workers Marked as Done
+    <strong>Workers Marked as Done</strong>
+    <span class="text-muted small ms-2">
+      (Requires review)
+    </span>
   </div>
 
   <div class="card-body p-0">
@@ -51,33 +54,105 @@
         <tr>
           <th>Worker</th>
           <th>Status</th>
+          <th>Review Status</th>
           <th>Submitted</th>
+          <th class="text-end">Review Action</th>
         </tr>
       </thead>
+
       <tbody>
         {% for item in done_items %}
-        <tr>
+        <tr class="review-row">
+
+          <!-- WORKER -->
           <td>
             <i class="far fa-user me-1 text-muted"></i>
             {{ item.owner.get_full_name|default:item.owner.username }}
           </td>
+
+          <!-- SUBMISSION STATUS -->
           <td>
             <span class="badge ui-badge status text-success">
-              <i class="fas fa-check me-1"></i> Done
+              <i class="fas fa-check me-1"></i>
+              Done
             </span>
           </td>
+
+          <!-- REVIEW DECISION STATUS -->
+          <td>
+            {% if item.review_decision == "approved" %}
+              <span class="badge bg-success">
+                <i class="fas fa-check-circle me-1"></i>
+                Approved
+              </span>
+            {% elif item.review_decision == "revision" %}
+              <span class="badge bg-danger">
+                <i class="fas fa-undo me-1"></i>
+                Needs Revision
+              </span>
+            {% else %}
+              <span class="badge bg-warning text-dark">
+                <i class="fas fa-hourglass-half me-1"></i>
+                Pending Review
+              </span>
+            {% endif %}
+          </td>
+
+          <!-- SUBMITTED TIME -->
           <td>
             {% if item.submitted_at %}
-              <i class="far fa-clock me-1 text-muted"></i>
-              {{ item.submitted_at|date:"M d, Y · H:i" }}
+              <div class="d-flex flex-column">
+                <span>
+                  <i class="far fa-clock me-1 text-muted"></i>
+                  {{ item.submitted_at|date:"M d, Y · H:i" }}
+                </span>
+
+                {% if item.submitted_at > workcycle.due_at %}
+                  <span class="badge bg-danger mt-1 align-self-start">
+                    <i class="fas fa-exclamation-triangle me-1"></i>
+                    Late
+                  </span>
+                {% else %}
+                  <span class="badge bg-success mt-1 align-self-start">
+                    <i class="fas fa-check-circle me-1"></i>
+                    On time
+                  </span>
+                {% endif %}
+              </div>
             {% else %}
               —
             {% endif %}
           </td>
+
+          <!-- REVIEW ACTION -->
+          <td class="text-end">
+            <a href="{% url 'admin_app:work-item-review' item.id %}"
+              class="btn btn-sm
+              {% if item.review_decision == 'approved' %}
+                btn-outline-success
+              {% elif item.review_decision == 'revision' %}
+                btn-outline-danger
+              {% else %}
+                btn-primary
+              {% endif %}
+              d-inline-flex align-items-center gap-2 shadow-sm">
+              <i class="fas fa-eye"></i>
+              {% if item.review_decision == "approved" %}
+                View Review
+              {% elif item.review_decision == "revision" %}
+                Re-review
+              {% else %}
+                Review
+              {% endif %}
+            </a>
+          </td>
+
         </tr>
         {% endfor %}
       </tbody>
     </table>
+
+
     {% else %}
       <div class="p-3 text-muted fst-italic">
         <i class="far fa-folder-open me-1"></i>
@@ -89,7 +164,7 @@
 
 <!-- ONGOING / NOT STARTED -->
 <div class="card ui-card border-warning">
-  <div class="card-header ui-card-header text-warning">
+  <div class="card-header ui-card-header text-warning d-flex align-items-center gap-2">
     <i class="fas fa-hourglass-half"></i>
     Workers Still In Progress / Not Started
   </div>
@@ -103,6 +178,7 @@
           <th>Status</th>
         </tr>
       </thead>
+
       <tbody>
         {% for item in ongoing_items %}
         <tr>
@@ -110,6 +186,7 @@
             <i class="far fa-user me-1 text-muted"></i>
             {{ item.owner.get_full_name|default:item.owner.username }}
           </td>
+
           <td>
             {% if item.status == "working_on_it" %}
               <span class="badge ui-badge status text-info">
@@ -127,6 +204,7 @@
         {% endfor %}
       </tbody>
     </table>
+
     {% else %}
       <div class="p-3 text-muted fst-italic">
         <i class="far fa-smile me-1"></i>

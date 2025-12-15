@@ -1,5 +1,6 @@
 from django.contrib.admin.views.decorators import staff_member_required
 from django.db.models import Count, Q, F, ExpressionWrapper, FloatField
+from django.db.models.functions import NullIf
 from django.shortcuts import render
 
 from accounts.models import WorkItem
@@ -7,47 +8,44 @@ from accounts.models import WorkItem
 
 @staff_member_required
 def completed_work_summary(request):
-    """
-    Analytics per active WorkCycle:
-    - Done status count
-    - Review decision breakdown
-    - Approval percentage
-    """
 
     summary = (
         WorkItem.objects
-        .filter(workcycle__is_active=True)
+        .filter(workcycle__is_active=True, is_active=True)
         .values(
             "workcycle_id",
             "workcycle__title",
             "workcycle__due_at",
         )
         .annotate(
+            # TOTAL workers assigned
             total_workers=Count("id"),
 
+            # DONE / SUBMITTED
             done_count=Count(
                 "id",
                 filter=Q(status="done")
             ),
 
+            # REVIEW STATES (ONLY from DONE)
             pending_review_count=Count(
                 "id",
-                filter=Q(review_decision="pending_review")
+                filter=Q(status="done", review_decision="pending")
             ),
 
-            needs_revision_count=Count(
+            revision_count=Count(
                 "id",
-                filter=Q(review_decision="needs_revision")
+                filter=Q(status="done", review_decision="revision")
             ),
 
             approved_count=Count(
                 "id",
-                filter=Q(review_decision="approved")
+                filter=Q(status="done", review_decision="approved")
             ),
         )
         .annotate(
             approval_pct=ExpressionWrapper(
-                F("approved_count") * 100.0 / F("total_workers"),
+                100.0 * F("approved_count") / NullIf(F("total_workers"), 0),
                 output_field=FloatField()
             )
         )

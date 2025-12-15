@@ -5,6 +5,7 @@ from admin_app.views import (
     teams,
     users, create_user, update_user, delete_user,
     completed_work_summary, done_workers_by_workcycle,
+    review_work_item
 )
 
 app_name = "admin_app"
@@ -33,6 +34,12 @@ urlpatterns = [
         "analytics/workcycle/<int:workcycle_id>/done-workers/",
         done_workers_by_workcycle,
         name="done-workers-by-workcycle"
+    ),
+
+    path(
+        "work-items/<int:item_id>/review/",
+        review_work_item,
+        name="work-item-review"
     ),
     
 

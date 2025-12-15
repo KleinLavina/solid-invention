@@ -1,0 +1,80 @@
+<div class="row g-4">
+{% for row in summary %}
+  <div class="col-md-6 col-xl-4">
+
+    <div class="card ui-card h-100">
+      <div class="card-body d-flex flex-column">
+
+        <!-- HEADER -->
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <div>
+            <h6 class="fw-semibold mb-1">
+              <i class="fas fa-tasks me-1 text-muted"></i>
+              {{ row.workcycle__title }}
+            </h6>
+            <div class="text-muted small">
+              <i class="far fa-calendar-alt me-1"></i>
+              {{ row.workcycle__due_at|date:"M d, Y · H:i" }}
+            </div>
+          </div>
+
+          <!-- ACTION MENU -->
+          <div class="dropdown">
+            <button class="btn btn-sm btn-outline-secondary"
+                    data-bs-toggle="dropdown">
+              <i class="fas fa-ellipsis-v"></i>
+            </button>
+
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li>
+                <a class="dropdown-item"
+                   href="{% url 'admin_app:done-workers-by-workcycle' row.workcycle_id %}">
+                  <i class="fas fa-users me-1"></i>
+                  Check Workers
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- PIE CHART -->
+        <div class="text-center my-3">
+          <canvas
+            class="progressPie"
+            width="120"
+            height="120"
+            data-done="{{ row.done_count }}"
+            data-total="{{ row.total_workers }}">
+          </canvas>
+        </div>
+
+        <!-- TOTAL WORKERS (PROMINENT) -->
+        <div class="text-center mb-2">
+          <div class="fw-bold fs-4">
+            {{ row.total_workers }}
+          </div>
+          <div class="small text-muted">
+            Total Workers
+          </div>
+        </div>
+
+        <!-- REVIEW META -->
+        <div class="small text-muted text-center mt-auto">
+          <div>
+            <strong class="text-primary">
+              {{ row.approval_pct|floatformat:1 }}%
+            </strong>
+            approved
+          </div>
+          <div>
+            {{ row.pending_review_count }} pending ·
+            {{ row.revision_count }} revision
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+{% endfor %}
+</div>

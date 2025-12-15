@@ -16,6 +16,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-*9e7$tpnxb5c_0eufd1gf1qr(v-x6=dw=(5s#aup25qwhn%+d+'
 DEBUG = True
 ALLOWED_HOSTS = []
+SECURE_REDIRECT_EXEMPT = [r'^auth/login/$']
+
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/auth/login/"
+
 
 # -------------------------------------------------
 # APPLICATIONS
@@ -46,10 +51,14 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+
+    # ✅ MUST be here
+    "middleware.auth_required.LoginRequiredMiddleware",
+
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    "middleware.auth_required.LoginRequiredMiddleware",
 ]
+
 
 # -------------------------------------------------
 # URLS / WSGI
@@ -120,3 +129,4 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # DEFAULTS
 # -------------------------------------------------
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+

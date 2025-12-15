@@ -1,0 +1,95 @@
+<div class="card shadow-sm">
+  <div class="card-body p-0">
+
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>Work Cycle</th>
+          <th>Due</th>
+          <th class="text-center">Progress</th>
+          <th class="small text-muted">Review</th>
+          <th class="text-end"></th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for row in summary %}
+        <tr>
+
+          <!-- TITLE -->
+          <td class="fw-semibold">
+            <i class="fas fa-tasks me-1 text-muted"></i>
+            {{ row.workcycle__title }}
+          </td>
+
+          <!-- DUE DATE -->
+          <td class="text-muted small">
+            <i class="far fa-calendar-alt me-1"></i>
+            {{ row.workcycle__due_at|date:"M d, Y · H:i" }}
+          </td>
+
+          <!-- PIE -->
+          <td class="text-center" style="width:120px;">
+            <canvas
+              class="progressPie"
+              width="80"
+              height="80"
+              data-done="{{ row.done_count }}"
+              data-total="{{ row.total_workers }}">
+            </canvas>
+          </td>
+
+          <!-- REVIEW INFO -->
+          <td class="small text-muted">
+            <div>
+              <strong class="text-primary">
+                {{ row.approval_pct|floatformat:1 }}%
+              </strong>
+              approved
+            </div>
+            <div>
+              {{ row.pending_review_count }} pending ·
+              {{ row.revision_count }} revision
+            </div>
+            <div class="mt-1">
+              <span class="fw-semibold">
+                {{ row.total_workers }}
+              </span>
+              total workers
+            </div>
+          </td>
+
+          <!-- ACTIONS -->
+          <td class="text-end">
+            <div class="dropdown">
+              <button class="btn btn-sm btn-outline-secondary"
+                      data-bs-toggle="dropdown">
+                <i class="fas fa-ellipsis-v"></i>
+              </button>
+
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li>
+                  <a class="dropdown-item"
+                     href="{% url 'admin_app:done-workers-by-workcycle' row.workcycle_id %}">
+                    <i class="fas fa-users me-1"></i>
+                    Check Workers
+                  </a>
+                </li>
+                <li>
+                  <a class="dropdown-item text-muted" href="#">
+                    <i class="fas fa-info-circle me-1"></i>
+                    More
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </td>
+
+        </tr>
+        {% endfor %}
+      </tbody>
+
+    </table>
+
+  </div>
+</div>

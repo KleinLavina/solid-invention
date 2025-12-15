@@ -1,3 +1,4 @@
+from django.utils import timezone
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.conf import settings
@@ -220,7 +221,9 @@ class WorkItem(models.Model):
         db_index=True
     )
 
+    # 👇 Automatically managed submission timestamp
     submitted_at = models.DateTimeField(null=True, blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -229,13 +232,25 @@ class WorkItem(models.Model):
         indexes = [
             models.Index(fields=["status"]),
             models.Index(fields=["review_decision"]),
-            models.Index(fields=["is_active"]),  # 👈 add this
+            models.Index(fields=["is_active"]),
         ]
 
+    def save(self, *args, **kwargs):
+        """
+        Auto-manage submitted_at:
+        - Set when status becomes 'done'
+        - Clear if status is reverted
+        """
+        if self.status == "done":
+            if self.submitted_at is None:
+                self.submitted_at = timezone.now()
+        else:
+            self.submitted_at = None
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.workcycle} — {self.owner}"
-
 
 class WorkItemAttachment(models.Model):
     work_item = models.ForeignKey(

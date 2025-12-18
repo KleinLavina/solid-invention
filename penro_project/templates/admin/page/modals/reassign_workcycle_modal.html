@@ -9,115 +9,186 @@
 
         <!-- HEADER -->
         <div class="modal-header">
-          <h5 class="modal-title">
-            <i class="fas fa-random me-2 text-warning"></i>
+          <h5 class="modal-title d-flex align-items-center gap-2">
+            <i class="fas fa-random text-warning"></i>
             Reassign Work Cycle
           </h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
 
         <!-- BODY -->
-        <div class="modal-body p-0">
-          <div class="p-4 overflow-y-auto" style="max-height:70vh;">
+        <div class="modal-body">
+          <div class="p-4" style="max-height:70vh; overflow-y:auto;">
 
-            <!-- CONTEXT -->
-            <div class="mb-3">
-              <span class="text-muted small">Work Cycle</span>
-              <div class="fw-semibold" id="reassignWorkcycleTitle">—</div>
-            </div>
+            <!-- CONTEXT CARD -->
+<div class="border rounded-3 p-3 mb-4 bg-light">
 
-            <!-- CURRENT ASSIGNMENT -->
-            <div class="mb-4">
-              <span class="text-muted small">Current Assignment</span>
-              <div id="currentAssignment" class="current-assignment-box mt-2"></div>
-            </div>
+  <!-- WORK CYCLE HEADER -->
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+      <div class="text-muted small">Work cycle</div>
+      <div class="fw-semibold fs-6" id="reassignWorkcycleTitle">—</div>
+    </div>
 
-            <hr>
+    <span class="badge bg-primary bg-opacity-10 text-primary">
+      Active
+    </span>
+  </div>
 
-            <!-- ASSIGN USERS -->
-            <div class="mb-3" id="reassignUsersSection">
-              <label class="form-label">Assign Users</label>
+  <!-- DIVIDER -->
+  <hr class="my-2">
 
-              <div id="reassignUserList">
-                <div class="d-flex align-items-center mb-2 user-row">
-                  <div class="input-group">
-                    <span class="input-group-text">
-                      <i class="fas fa-user"></i>
-                    </span>
-                    <select name="users[]" class="form-select">
-                      <option value="">Select a user</option>
-                      {% for user in users %}
-                      <option value="{{ user.id }}">
-                        {{ user.get_full_name|default:user.username }}
-                      </option>
-                      {% endfor %}
-                    </select>
+  <!-- CURRENT ASSIGNMENT -->
+  <div>
+    <div class="text-muted small mb-2">Current assignment</div>
+
+    <div id="currentAssignment"
+         class="d-flex flex-wrap gap-2 align-items-center current-assignment-box">
+
+      <!-- Example pills (JS will inject real ones) -->
+      <!--
+      <span class="assignment-pill user">
+        <i class="far fa-user"></i> Juan Dela Cruz
+      </span>
+
+      <span class="assignment-pill team">
+        <i class="fas fa-users"></i> Inspection Team
+      </span>
+      -->
+
+      <!-- Empty state example -->
+      <!--
+      <span class="text-muted small fst-italic">
+        No users or teams assigned
+      </span>
+      -->
+    </div>
+  </div>
+
+</div>
+
+
+            <!-- NEW ASSIGNMENT CARD -->
+            <div class="border rounded-3 p-3 mb-4">
+
+              <div class="fw-semibold mb-3">New Assignment</div>
+
+              <!-- ASSIGN USERS -->
+              <div id="reassignUsersSection" class="mb-4">
+                <label class="form-label small fw-semibold">Assign users</label>
+
+                <div id="reassignUserList">
+                  <div class="d-flex align-items-center mb-2 user-row">
+
+                    <div class="user-combo flex-grow-1">
+                      <input type="hidden" name="users[]" class="user-hidden">
+
+                      <div class="user-display">
+                        <i class="fas fa-user text-muted"></i>
+                        <input type="text"
+                               class="user-input"
+                               placeholder="Add assignee"
+                               autocomplete="off">
+                        <i class="fas fa-chevron-down text-muted ms-auto"></i>
+                      </div>
+
+                      <div class="user-dropdown">
+                        {% for user in users %}
+                        <div class="user-option"
+                             data-id="{{ user.id }}"
+                             data-label="{{ user.get_full_name|default:user.username }}">
+                          {{ user.get_full_name|default:user.username }}
+                        </div>
+                        {% endfor %}
+                      </div>
+                    </div>
+
+                    <button type="button"
+                            class="btn btn-outline-danger btn-sm ms-2 remove-user"
+                            style="display:none;">✕</button>
                   </div>
-                  <button type="button" class="btn btn-outline-danger ms-2 remove-user" style="display:none;">✕</button>
+                </div>
+
+                <button type="button"
+                        class="btn btn-sm btn-outline-primary mt-2"
+                        id="reassignAddUserBtn">
+                  <i class="fas fa-plus me-1"></i> Add user
+                </button>
+              </div>
+
+              <!-- OR DIVIDER -->
+              <div class="text-center text-muted small my-3">— OR —</div>
+
+              <!-- ASSIGN TEAM -->
+              <div id="reassignTeamSection">
+                <label class="form-label small fw-semibold">Assign team</label>
+                <div class="input-group">
+                  <span class="input-group-text">
+                    <i class="fas fa-users"></i>
+                  </span>
+                  <select name="team" id="reassignTeamSelect" class="form-select">
+                    <option value="">Select a team</option>
+                    {% for team in teams %}
+                    <option value="{{ team.id }}">{{ team.name }}</option>
+                    {% endfor %}
+                  </select>
                 </div>
               </div>
 
-              <button type="button" class="btn btn-sm btn-outline-primary mt-2" id="reassignAddUserBtn">
-                <i class="fas fa-plus me-1"></i> Add user
-              </button>
             </div>
 
-            <!-- ASSIGN TEAM -->
-            <div class="mb-3" id="reassignTeamSection">
-              <label class="form-label">Or Assign Team</label>
-              <div class="input-group">
-                <span class="input-group-text">
-                  <i class="fas fa-users"></i>
-                </span>
-                <select name="team" id="reassignTeamSelect" class="form-select">
-                  <option value="">Select a team</option>
-                  {% for team in teams %}
-                  <option value="{{ team.id }}">{{ team.name }}</option>
-                  {% endfor %}
+            <!-- WARNING / ARCHIVE CARD -->
+            <div class="border rounded-3 p-3 bg-warning bg-opacity-10">
+
+              <div class="d-flex gap-2 mb-3">
+                <i class="fas fa-exclamation-triangle text-warning mt-1"></i>
+                <div class="small">
+                  <strong>Important</strong><br>
+                  Changing assignments will archive removed users’ work items.
+                  Existing submissions will be preserved.
+                </div>
+              </div>
+
+              <!-- ARCHIVE REASON -->
+              <div class="mb-3">
+                <label class="form-label small fw-semibold">
+                  Archive reason <span class="text-danger">*</span>
+                </label>
+                <select name="inactive_reason" class="form-select" required>
+                  <option value="">Select a reason</option>
+                  <option value="reassigned">Reassigned</option>
+                  <option value="duplicate">Duplicate submission</option>
+                  <option value="invalid">Invalid / not required</option>
+                  <option value="superseded">Superseded</option>
+                  <option value="archived">Archived after completion</option>
                 </select>
               </div>
+
+              <!-- ARCHIVE NOTE -->
+              <div>
+                <label class="form-label small fw-semibold">
+                  Archive note <span class="text-muted">(optional)</span>
+                </label>
+                <textarea name="inactive_note"
+                          class="form-control"
+                          rows="2"
+                          placeholder="Optional context for audit trail"></textarea>
+              </div>
+
             </div>
 
-            <div class="alert alert-warning small mt-4">
-              <i class="fas fa-exclamation-triangle me-1"></i>
-              Changing assignments will archive removed users’ work items.
-              Existing submissions will be preserved.
-            </div>
-            
-              <!-- INACTIVE REASON -->
-            <div class="mt-3">
-              <label class="form-label small text-muted">
-                Archive Reason <span class="text-danger">*</span>
-              </label>
-              <select name="inactive_reason" class="form-select" required>
-                <option value="">Select a reason</option>
-                <option value="reassigned">Reassigned</option>
-                <option value="duplicate">Duplicate Submission</option>
-                <option value="invalid">Invalid / Not Required</option>
-                <option value="superseded">Superseded by New Submission</option>
-                <option value="archived">Archived After Completion</option>
-              </select>
-            </div>
-
-            <!-- INACTIVE NOTE -->
-            <div class="mt-3">
-              <label class="form-label small text-muted">
-                Archive Note (optional)
-              </label>
-              <textarea name="inactive_note" class="form-control" rows="2"
-                placeholder="e.g. User removed due to reassignment">
-                </textarea>
-            </div>
-            
           </div>
         </div>
 
         <!-- FOOTER -->
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          <button type="button"
+                  class="btn btn-secondary"
+                  data-bs-dismiss="modal">
             Cancel
           </button>
-          <button type="submit" class="btn btn-warning">
+          <button type="submit"
+                  class="btn btn-warning">
             <i class="fas fa-check me-1"></i> Confirm Reassignment
           </button>
         </div>
@@ -127,115 +198,234 @@
     </div>
   </div>
 </div>
+<style>
+.current-assignment-box{
+  min-height:36px;
+}
+
+.assignment-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:6px 10px;
+  font-size:.8rem;
+  border-radius:999px;
+  font-weight:600;
+  white-space:nowrap;
+}
+
+.assignment-pill.user{
+  background:#eef2ff;
+  color:#4338ca;
+}
+
+.assignment-pill.team{
+  background:#ecfeff;
+  color:#0f766e;
+}
+
+.assignment-pill.empty{
+  background:#f1f5f9;
+  color:#64748b;
+}
+</style>
+
 <script>
-  document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", () => {
 
-    const modal = document.getElementById("reassignWorkcycleModal");
-    const idInput = document.getElementById("reassignWorkcycleId");
-    const titleEl = document.getElementById("reassignWorkcycleTitle");
-    const currentEl = document.getElementById("currentAssignment");
+  /* ===============================
+     MODAL CONTEXT
+     =============================== */
+  const modal = document.getElementById("reassignWorkcycleModal");
+  const idInput = document.getElementById("reassignWorkcycleId");
+  const titleEl = document.getElementById("reassignWorkcycleTitle");
+  const currentEl = document.getElementById("currentAssignment");
 
-    const userList = document.getElementById("reassignUserList");
-    const addUserBtn = document.getElementById("reassignAddUserBtn");
-    const teamSelect = document.getElementById("reassignTeamSelect");
+  /* ===============================
+     ASSIGNMENT CONTROLS
+     =============================== */
+  const userList = document.getElementById("reassignUserList");
+  const addUserBtn = document.getElementById("reassignAddUserBtn");
+  const teamSelect = document.getElementById("reassignTeamSelect");
 
-    const usersSection = document.getElementById("reassignUsersSection");
-    const teamSection = document.getElementById("reassignTeamSection");
+  const usersSection = document.getElementById("reassignUsersSection");
+  const teamSection = document.getElementById("reassignTeamSection");
 
-    function selectedUsers() {
-      return [...userList.querySelectorAll('select[name="users[]"]')]
-        .map(s => s.value)
-        .filter(Boolean);
-    }
+  /* ===============================
+     HELPERS
+     =============================== */
+  function hasAssignedUsers() {
+    return [...userList.querySelectorAll(".user-hidden")]
+      .some(i => i.value);
+  }
 
-    function refreshUserOptions() {
-      const selected = selectedUsers();
-      userList.querySelectorAll('select[name="users[]"]').forEach(select => {
-        [...select.options].forEach(opt => {
-          if (!opt.value) return;
-          opt.disabled = selected.includes(opt.value) && opt.value !== select.value;
-        });
+  function getSelectedUserIds() {
+    return [...userList.querySelectorAll(".user-hidden")]
+      .map(i => i.value)
+      .filter(Boolean);
+  }
+
+  function refreshDropdowns() {
+    const selected = getSelectedUserIds();
+
+    userList.querySelectorAll(".user-row").forEach(row => {
+      const hidden = row.querySelector(".user-hidden");
+      row.querySelectorAll(".user-option").forEach(opt => {
+        opt.style.display =
+          selected.includes(opt.dataset.id) && hidden.value !== opt.dataset.id
+            ? "none"
+            : "block";
       });
-    }
+    });
+  }
 
-    function toggleSections() {
-      const hasUsers = selectedUsers().length > 0;
-      const hasTeam = teamSelect.value !== "";
+  function toggleAssignSections() {
+    const usersSelected = hasAssignedUsers();
+    const teamSelected = teamSelect.value !== "";
 
-      usersSection.style.display = hasTeam ? "none" : "block";
-      teamSection.style.display = hasUsers ? "none" : "block";
+    usersSection.style.display = teamSelected ? "none" : "block";
+    teamSection.style.display = usersSelected ? "none" : "block";
 
-      if (hasUsers) teamSelect.value = "";
-      if (hasTeam) {
-        userList.querySelectorAll('select[name="users[]"]').forEach(s => s.value = "");
-      }
-    }
+    if (usersSelected) teamSelect.value = "";
+  }
 
-    addUserBtn.addEventListener("click", () => {
-      const row = document.createElement("div");
-      row.className = "d-flex align-items-center mb-2 user-row";
-      row.innerHTML = userList.firstElementChild.innerHTML;
-      row.querySelector(".remove-user").style.display = "inline-block";
-      userList.appendChild(row);
-      refreshUserOptions();
+  /* ===============================
+     USER COMBO BEHAVIOR
+     =============================== */
+  function attachUserCombo(row) {
+    const combo = row.querySelector(".user-combo");
+    if (!combo) return;
+
+    const input = combo.querySelector(".user-input");
+    const hidden = combo.querySelector(".user-hidden");
+    const dropdown = combo.querySelector(".user-dropdown");
+    const options = combo.querySelectorAll(".user-option");
+    const removeBtn = row.querySelector(".remove-user");
+
+    input.addEventListener("focus", () => {
+      refreshDropdowns();
+      dropdown.style.display = "block";
     });
 
-    userList.addEventListener("change", () => {
-      refreshUserOptions();
-      toggleSections();
-    });
+    combo.addEventListener("click", () => input.focus());
 
-    userList.addEventListener("click", e => {
-      if (e.target.classList.contains("remove-user")) {
-        e.target.closest(".user-row").remove();
-        refreshUserOptions();
-        toggleSections();
-      }
-    });
-
-    teamSelect.addEventListener("change", toggleSections);
-
-    modal.addEventListener("show.bs.modal", (event) => {
-      const btn = event.relatedTarget;
-
-      idInput.value = btn.dataset.id;
-      titleEl.textContent = btn.dataset.title || "—";
-      currentEl.innerHTML = "";
-
-      const users = (btn.dataset.users || "")
-        .split("|").map(v => v.trim()).filter(Boolean);
-
-      const teams = (btn.dataset.teams || "")
-        .split("|").map(v => v.trim()).filter(Boolean);
-
-      if (!users.length && !teams.length) {
-        currentEl.innerHTML = `
-          <span class="assignment-pill empty">
-            <i class="far fa-user"></i> No assignment
-          </span>`;
-      }
-
-      users.forEach(name => {
-        currentEl.insertAdjacentHTML("beforeend", `
-          <span class="assignment-pill user">
-            <i class="far fa-user"></i> ${name}
-          </span>
-        `);
+    input.addEventListener("input", () => {
+      const q = input.value.toLowerCase();
+      options.forEach(opt => {
+        if (opt.style.display === "none") return;
+        opt.style.display = opt.dataset.label.toLowerCase().includes(q)
+          ? "block"
+          : "none";
       });
-
-      teams.forEach(name => {
-        currentEl.insertAdjacentHTML("beforeend", `
-          <span class="assignment-pill team">
-            <i class="fas fa-users"></i> ${name}
-          </span>
-        `);
-      });
-
-      teamSelect.value = "";
-      userList.innerHTML = userList.firstElementChild.outerHTML;
-      refreshUserOptions();
-      toggleSections();
     });
 
+    options.forEach(opt => {
+      opt.addEventListener("click", () => {
+        hidden.value = opt.dataset.id;
+        input.value = opt.dataset.label;
+        dropdown.style.display = "none";
+        removeBtn.style.display = "inline-block";
+
+        refreshDropdowns();
+        toggleAssignSections();
+      });
+    });
+
+    document.addEventListener("click", e => {
+      if (!combo.contains(e.target)) dropdown.style.display = "none";
+    });
+  }
+
+  /* ===============================
+     ADD USER ROW
+     =============================== */
+  addUserBtn.addEventListener("click", () => {
+    const row = userList.firstElementChild.cloneNode(true);
+
+    row.querySelector(".user-hidden").value = "";
+    row.querySelector(".user-input").value = "";
+    row.querySelector(".user-dropdown").style.display = "none";
+    row.querySelector(".remove-user").style.display = "inline-block";
+
+    userList.appendChild(row);
+    attachUserCombo(row);
+    refreshDropdowns();
   });
+
+  /* ===============================
+     REMOVE / CLEAR USER ROW
+     =============================== */
+  userList.addEventListener("click", e => {
+    if (!e.target.classList.contains("remove-user")) return;
+
+    const row = e.target.closest(".user-row");
+    const rows = userList.querySelectorAll(".user-row");
+
+    if (rows.length === 1) {
+      // clear first row only
+      row.querySelector(".user-hidden").value = "";
+      row.querySelector(".user-input").value = "";
+      e.target.style.display = "none";
+    } else {
+      row.remove();
+    }
+
+    refreshDropdowns();
+    toggleAssignSections();
+  });
+
+  /* ===============================
+     TEAM CHANGE
+     =============================== */
+  teamSelect.addEventListener("change", toggleAssignSections);
+
+  /* ===============================
+     MODAL OPEN / RESET
+     =============================== */
+  modal.addEventListener("show.bs.modal", (event) => {
+    const btn = event.relatedTarget;
+
+    idInput.value = btn.dataset.id || "";
+    titleEl.textContent = btn.dataset.title || "—";
+    currentEl.innerHTML = "";
+
+    const users = (btn.dataset.users || "")
+      .split("|").map(v => v.trim()).filter(Boolean);
+
+    const teams = (btn.dataset.teams || "")
+      .split("|").map(v => v.trim()).filter(Boolean);
+
+    if (!users.length && !teams.length) {
+      currentEl.innerHTML = `
+        <span class="assignment-pill empty">
+          <i class="far fa-user"></i> No assignment
+        </span>`;
+    }
+
+    users.forEach(name => {
+      currentEl.insertAdjacentHTML("beforeend", `
+        <span class="assignment-pill user">
+          <i class="far fa-user"></i> ${name}
+        </span>
+      `);
+    });
+
+    teams.forEach(name => {
+      currentEl.insertAdjacentHTML("beforeend", `
+        <span class="assignment-pill team">
+          <i class="fas fa-users"></i> ${name}
+        </span>
+      `);
+    });
+
+    // reset assignment UI
+    teamSelect.value = "";
+    userList.innerHTML = userList.firstElementChild.outerHTML;
+
+    attachUserCombo(userList.firstElementChild);
+    refreshDropdowns();
+    toggleAssignSections();
+  });
+
+});
 </script>

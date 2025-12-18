@@ -35,7 +35,7 @@ INSTALLED_APPS = [
     'django_crontab',
 
     'accounts.apps.AccountsConfig',                         # ✅ main accounts app
-  
+    'notifications.apps.NotificationsConfig',
 
     'admin_app',
     'user_app',

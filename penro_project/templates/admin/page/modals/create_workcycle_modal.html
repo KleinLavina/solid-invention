@@ -6,44 +6,61 @@
       <form method="post" action="{% url 'admin_app:workcycle-create' %}">
         {% csrf_token %}
 
-        <!-- HEADER -->
-        <div class="modal-header">
-          <h5 class="modal-title">
-            <i class="fas fa-sync-alt me-2 text-success"></i>
+        <!-- HEADER (FIXED) -->
+        <div class="modal-header sticky-top bg-white border-bottom">
+          <h5 class="modal-title d-flex align-items-center gap-2">
+            <i class="fas fa-sync-alt text-success"></i>
             Create Work Cycle
           </h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
 
-        <!-- BODY -->
-        <div class="modal-body p-0">
-          <div class="p-4 overflow-y-auto" style="max-height:70vh;">
+        <!-- BODY (SCROLLS ONLY HERE) -->
+        <div class="modal-body overflow-auto" style="max-height: calc(90vh - 140px);">
 
-            <!-- TITLE -->
-            <!-- TITLE -->
-            <div class="mb-3 position-relative">
-              <label class="form-label">Title</label>
-              <div class="input-group">
-                <span class="input-group-text">
-                  <i class="fas fa-tasks"></i>
-                </span>
-                <input type="text"
-                      name="title"
-                      id="workcycleTitle"
-                      class="form-control"
-                      placeholder="e.g. September Accomplishment Report 2025"
-                      autocomplete="off"
-                      required>
-              </div>
+          <!-- CONTEXT CARD -->
+          <div class="border rounded-3 p-3 mb-4 bg-light">
+            <div class="text-muted small mb-1">You are creating</div>
+            <div class="fw-semibold fs-6">A new work cycle</div>
+          </div>
 
-              <!-- SUGGESTIONS -->
-              <div class="title-suggestions d-none" id="titleSuggestions"></div>
-            </div>
+          <!-- BASIC INFORMATION -->
+          <div class="mb-4 section-card">
+            <div class="section-title">Basic Information</div>
 
+      <!-- TITLE -->
+<div class="mb-3 field-group">
+  <label class="form-label small fw-semibold">
+    Title <span class="text-danger">*</span>
+  </label>
+
+  <!-- ✅ POSITIONING WRAPPER -->
+  <div class="title-input-wrap">
+
+    <div class="input-group">
+      <span class="input-group-text">
+        <i class="fas fa-tasks"></i>
+      </span>
+      <input type="text"
+             name="title"
+             id="workcycleTitle"
+             class="form-control"
+             placeholder="e.g. September Accomplishment Report 2025"
+             autocomplete="off"
+             required>
+    </div>
+
+    <!-- ✅ SUGGESTIONS (NOW PROPERLY ANCHORED) -->
+    <div class="title-suggestions d-none" id="titleSuggestions"></div>
+  </div>
+
+  <div class="field-error-text d-none"></div>
+</div>
 
             <!-- DESCRIPTION -->
-            <div class="mb-3">
-              <label class="form-label">Description</label>
+            <div class="field-group">
+              <label class="form-label small fw-semibold">Description</label>
+
               <div class="input-group">
                 <span class="input-group-text">
                   <i class="fas fa-align-left"></i>
@@ -51,13 +68,22 @@
                 <textarea name="description"
                           class="form-control"
                           rows="3"
-                          placeholder="Brief description of this work cycle (optional)"></textarea>
+                          placeholder="Brief description (optional)"></textarea>
               </div>
-            </div>
 
-            <!-- DUE DATE -->
-            <div class="mb-3">
-              <label class="form-label">Due Date</label>
+              <div class="field-error-text d-none"></div>
+            </div>
+          </div>
+
+          <!-- SCHEDULE -->
+          <div class="mb-4 section-card">
+            <div class="section-title">Schedule</div>
+
+            <div class="field-group">
+              <label class="form-label small fw-semibold">
+                Due Date <span class="text-danger">*</span>
+              </label>
+
               <div class="input-group">
                 <span class="input-group-text">
                   <i class="far fa-calendar-alt"></i>
@@ -66,32 +92,46 @@
                        name="due_at"
                        id="dueDatePicker"
                        class="form-control"
-                       placeholder="Select due date and time"
+                       placeholder="Select date and time"
                        autocomplete="off"
                        required>
               </div>
-            </div>
 
-            <hr>
+              <div class="field-error-text d-none"></div>
+            </div>
+          </div>
+
+          <!-- ASSIGNMENT -->
+          <div class="mb-4 section-card">
+            <div class="section-title">Assignment</div>
 
             <!-- ASSIGN USERS -->
-            <div class="mb-3" id="assignUsersSection">
-              <label class="form-label">Assign Users</label>
+            <div id="assignUsersSection" class="mb-3 field-group">
+              <label class="form-label small fw-semibold">Assign Users</label>
 
               <div id="userAssignList">
                 <div class="d-flex align-items-center mb-2 user-row">
-                  <div class="input-group">
-                    <span class="input-group-text">
-                      <i class="fas fa-user"></i>
-                    </span>
-                    <select name="users[]" class="form-select">
-                      <option value="">Select a user</option>
+                  <div class="user-combo flex-grow-1">
+                    <input type="hidden" name="users[]" class="user-hidden">
+
+                    <div class="user-display">
+                      <i class="fas fa-user me-2 text-muted"></i>
+                      <input type="text"
+                             class="user-input"
+                             placeholder="Assign user"
+                             autocomplete="off">
+                      <i class="fas fa-chevron-down ms-auto text-muted"></i>
+                    </div>
+
+                    <div class="user-dropdown">
                       {% for user in users %}
-                        <option value="{{ user.id }}">
-                          {{ user.get_full_name|default:user.username }}
-                        </option>
+                      <div class="user-option"
+                           data-id="{{ user.id }}"
+                           data-label="{{ user.get_full_name|default:user.username }}">
+                        {{ user.get_full_name|default:user.username }}
+                      </div>
                       {% endfor %}
-                    </select>
+                    </div>
                   </div>
 
                   <button type="button"
@@ -100,6 +140,8 @@
                 </div>
               </div>
 
+              <div class="field-error-text d-none"></div>
+
               <button type="button"
                       class="btn btn-sm btn-outline-primary mt-2"
                       id="addUserBtn">
@@ -107,9 +149,13 @@
               </button>
             </div>
 
+            <!-- OR DIVIDER -->
+            <div class="or-divider">— OR —</div>
+
             <!-- ASSIGN TEAM -->
-            <div class="mb-3" id="assignTeamSection">
-              <label class="form-label">Or Assign Team</label>
+            <div id="assignTeamSection" class="field-group">
+              <label class="form-label small fw-semibold">Assign Team</label>
+
               <div class="input-group">
                 <span class="input-group-text">
                   <i class="fas fa-users"></i>
@@ -117,72 +163,74 @@
                 <select name="team" id="teamSelect" class="form-select">
                   <option value="">Select a team</option>
                   {% for team in teams %}
-                    <option value="{{ team.id }}">{{ team.name }}</option>
+                  <option value="{{ team.id }}">{{ team.name }}</option>
                   {% endfor %}
                 </select>
               </div>
-            </div>
 
+              <div class="field-error-text d-none"></div>
+            </div>
           </div>
+
         </div>
 
-        <!-- FOOTER -->
-        <div class="modal-footer">
+        <!-- FOOTER (FIXED) -->
+        <div class="modal-footer sticky-bottom bg-white border-top">
           <button type="button"
-                  class="btn btn-secondary"
+                  class="btn btn-outline-secondary"
                   data-bs-dismiss="modal">
             Cancel
           </button>
+
           <button type="submit" class="btn btn-success">
-            <i class="fas fa-check me-1"></i> Create Work Cycle
+            <i class="fas fa-check me-1"></i>
+            Create Work Cycle
           </button>
         </div>
 
       </form>
-
     </div>
   </div>
 </div>
 
-<!-- FLATPICKR FIX -->
+<!-- ================================
+     STYLES (ONE FILE)
+================================ -->
 <style>
-.flatpickr-calendar {
-  z-index: 1060 !important;
-  border-radius: 12px;
-  box-shadow: 0 16px 40px rgba(0,0,0,0.15);
+  /* ===== TITLE SUGGESTIONS (FIXED) ===== */
+.title-input-wrap{
+  position:relative;
 }
-.flatpickr-day {
-  border-radius: 6px;
-}
-.input-group-text i {
-  color: #6c757d;
-}
+
 .title-suggestions{
   position:absolute;
   top:100%;
   left:0;
   width:100%;
   margin-top:6px;
+
   background:#ffffff;
   border:1px solid #e5e7eb;
   border-radius:10px;
-  box-shadow:0 10px 30px rgba(0,0,0,.15);
+  box-shadow:0 12px 30px rgba(0,0,0,.15);
+
   padding:8px;
-  z-index:1070;
+  z-index:1080; /* above modal body, below header */
 }
 
 .title-suggestions button{
-  display:block;
   width:100%;
+  display:block;
   text-align:left;
+
   background:#f8fafc;
   border:1px solid #e5e7eb;
   border-radius:8px;
+
   padding:8px 10px;
   font-size:.85rem;
-  margin-bottom:6px;
   cursor:pointer;
-  transition:.15s;
+  transition:.15s ease;
 }
 
 .title-suggestions button:hover{
@@ -190,81 +238,150 @@
   border-color:#6366f1;
 }
 
-.title-suggestions button:last-child{
-  margin-bottom:0;
+/* ===== MODAL STRUCTURE FIXES ===== */
+#createWorkcycleModal .modal-content {
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+#createWorkcycleModal .modal-header {
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+  margin: 0;
+  border-bottom: 1px solid #dee2e6;
+  background: white;
+}
+
+#createWorkcycleModal .modal-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 1.5rem;
+  min-height: 0; /* Important for flex child scrolling */
+}
+
+#createWorkcycleModal .modal-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 1030;
+  margin: 0;
+  border-top: 1px solid #dee2e6;
+  background: white;
+}
+
+/* Responsive height adjustment */
+@media (max-height: 600px) {
+  #createWorkcycleModal .modal-body {
+    max-height: calc(80vh - 140px);
+  }
+}
+
+/* ===== MONDAY STYLE ===== */
+.section-card{
+  background:#fff;
+  border:1px solid #e5e7eb;
+  border-radius:12px;
+  padding:16px;
+}
+
+.section-title{
+  margin:-16px -16px 16px;
+  padding:10px 16px;
+  background:#f1f5f9;
+  border-bottom:1px solid #e5e7eb;
+  border-radius:12px 12px 0 0;
+  font-size:.75rem;
+  font-weight:700;
+  letter-spacing:.04em;
+  color:#64748b;
+  text-transform:uppercase;
+}
+
+/* Context card */
+.bg-light{
+  background:linear-gradient(135deg,#eef2ff,#ffffff);
+  border:1px solid #c7d2fe;
+}
+
+/* OR divider */
+.or-divider{
+  text-align:center;
+  margin:12px 0;
+  font-size:.75rem;
+  font-weight:600;
+  color:#64748b;
+  position:relative;
+}
+
+.or-divider::before,
+.or-divider::after{
+  content:"";
+  position:absolute;
+  top:50%;
+  width:38%;
+  height:1px;
+  background:#cbd5e1;
+}
+
+.or-divider::before{ left:0; }
+.or-divider::after{ right:0; }
+
+/* User combo */
+.user-combo{ position:relative; }
+.user-display{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  border:1px solid #c7d2fe;
+  border-radius:6px;
+  padding:8px 10px;
+  background:#fff;
+}
+.user-display:focus-within{
+  background:#eef2ff;
+  border-color:#6366f1;
+}
+.user-input{ border:none; outline:none; flex:1; }
+
+/* Dropdown */
+.user-dropdown{
+  position:absolute;
+  top:100%;
+  left:0;
+  right:0;
+  background:#fff;
+  border:1px solid #dee2e6;
+  border-radius:6px;
+  box-shadow:0 10px 25px rgba(0,0,0,.1);
+  max-height:220px;
+  overflow-y:auto;
+  display:none;
+  z-index:1000;
+}
+.user-option{ padding:8px 12px; cursor:pointer; }
+.user-option:hover{ background:#e0e7ff; }
+
+/* Errors */
+.field-error-text{
+  font-size:.75rem;
+  color:#dc2626;
+  margin-top:4px;
+}
+
+/* Ensure modal backdrop stays behind */
+.modal-backdrop {
+  z-index: 1040;
+}
+
+.modal {
+  z-index: 1050;
 }
 </style>
 
 <!-- JS -->
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const userList = document.getElementById("userAssignList");
-  const addBtn = document.getElementById("addUserBtn");
-  const teamSelect = document.getElementById("teamSelect");
-  const usersSection = document.getElementById("assignUsersSection");
-  const teamSection = document.getElementById("assignTeamSection");
-
-  function selectedUsers() {
-    return [...userList.querySelectorAll('select[name="users[]"]')]
-      .map(s => s.value)
-      .filter(Boolean);
-  }
-
-  function refreshUserOptions() {
-    const selected = selectedUsers();
-    userList.querySelectorAll('select[name="users[]"]').forEach(select => {
-      [...select.options].forEach(opt => {
-        if (!opt.value) return;
-        opt.disabled = selected.includes(opt.value) && opt.value !== select.value;
-      });
-    });
-  }
-
-  function toggleSections() {
-    const hasUsers = selectedUsers().length > 0;
-    const hasTeam = teamSelect.value !== "";
-    usersSection.style.display = hasTeam ? "none" : "block";
-    teamSection.style.display = hasUsers ? "none" : "block";
-    if (hasUsers) teamSelect.value = "";
-    if (hasTeam) {
-      userList.querySelectorAll('select[name="users[]"]').forEach(s => s.value = "");
-    }
-  }
-
-  addBtn.addEventListener("click", () => {
-    const row = document.createElement("div");
-    row.className = "d-flex align-items-center mb-2 user-row";
-    row.innerHTML = userList.firstElementChild.innerHTML;
-    row.querySelector(".remove-user").style.display = "inline-block";
-    userList.appendChild(row);
-    refreshUserOptions();
-  });
-
-  userList.addEventListener("change", () => {
-    refreshUserOptions();
-    toggleSections();
-  });
-
-  userList.addEventListener("click", e => {
-    if (e.target.classList.contains("remove-user")) {
-      e.target.closest(".user-row").remove();
-      refreshUserOptions();
-      toggleSections();
-    }
-  });
-
-  teamSelect.addEventListener("change", toggleSections);
-
-  flatpickr("#dueDatePicker", {
-    enableTime: true,
-    dateFormat: "Y-m-d H:i",
-    time_24hr: true,
-    minuteIncrement: 5,
-    defaultHour: 17
-  });
-});
-
-document.addEventListener("DOMContentLoaded", () => {
+ <script>
+  document.addEventListener("DOMContentLoaded", () => {
 
   const input = document.getElementById("workcycleTitle");
   const box = document.getElementById("titleSuggestions");
@@ -315,6 +432,344 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!box.contains(e.target) && e.target !== input) {
       box.classList.add("d-none");
     }
+  });
+  flatpickr("#dueDatePicker", {
+    enableTime: true,
+    dateFormat: "Y-m-d H:i",
+    time_24hr: true,
+    minuteIncrement: 5,
+    defaultHour: 17
+  });
+
+});
+ </script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const usersSection = document.getElementById("assignUsersSection");
+  const teamSection = document.getElementById("assignTeamSection");
+  const teamSelect = document.getElementById("teamSelect");
+  const userList = document.getElementById("userAssignList");
+
+  function hasAssignedUsers() {
+    return [...document.querySelectorAll(".user-hidden")]
+      .some(i => i.value);
+  }
+
+  function toggleAssignSections() {
+    const usersSelected = hasAssignedUsers();
+    const teamSelected = teamSelect.value !== "";
+
+    // if users assigned → hide team
+    teamSection.style.display = usersSelected ? "none" : "block";
+
+    // optional: if team selected → hide users
+    usersSection.style.display = teamSelected ? "none" : "block";
+
+    // cleanup values to avoid mixed submit
+    if (usersSelected) {
+      teamSelect.value = "";
+    }
+
+    // only clear users when team is manually selected
+if (teamSelected && document.activeElement === teamSelect) {
+  document.querySelectorAll(".user-hidden").forEach(i => i.value = "");
+  document.querySelectorAll(".user-input").forEach(i => i.value = "");
+}
+
+  }
+
+  // run on page load
+  toggleAssignSections();
+
+  // when team changes
+  teamSelect.addEventListener("change", toggleAssignSections);
+
+  // when user is selected (combo click)
+  userList.addEventListener("click", e => {
+    if (e.target.classList.contains("user-option")) {
+      setTimeout(toggleAssignSections, 0);
+    }
+  });
+
+  // when user row is removed
+  userList.addEventListener("click", e => {
+    if (e.target.classList.contains("remove-user")) {
+      setTimeout(toggleAssignSections, 0);
+    }
+  });
+
+  // when new row added
+  document.getElementById("addUserBtn")
+    .addEventListener("click", () => {
+      setTimeout(toggleAssignSections, 0);
+    });
+});
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const userList = document.getElementById("userAssignList");
+  const addBtn = document.getElementById("addUserBtn");
+
+  /* ============================
+     ADD USER ROW
+     ============================ */
+  addBtn.addEventListener("click", () => {
+    const row = userList.firstElementChild.cloneNode(true);
+
+    // reset values
+    row.querySelector(".user-input").value = "";
+    row.querySelector(".user-hidden").value = "";
+    row.querySelector(".user-dropdown").style.display = "none";
+    row.querySelector(".remove-user").style.display = "inline-block";
+
+    userList.appendChild(row);
+  });
+
+  /* ============================
+     REMOVE / CLEAR USER ROW
+     ============================ */
+  userList.addEventListener("click", e => {
+    if (!e.target.classList.contains("remove-user")) return;
+
+    const row = e.target.closest(".user-row");
+    const rows = userList.querySelectorAll(".user-row");
+
+    if (rows.length === 1) {
+      // 🔁 FIRST ROW → CLEAR ONLY (do NOT remove)
+      row.querySelector(".user-hidden").value = "";
+      row.querySelector(".user-input").value = "";
+      row.querySelector(".user-dropdown").style.display = "none";
+      row.querySelector(".remove-user").style.display = "none";
+    } else {
+      // 🗑 EXTRA ROWS → REMOVE
+      row.remove();
+    }
+
+    // 🔄 re-sync UI state
+    setTimeout(() => {
+      if (typeof refreshDropdowns === "function") {
+        refreshDropdowns();
+      }
+      if (typeof toggleAssignSections === "function") {
+        toggleAssignSections();
+      }
+    }, 0);
+  });
+});
+</script>
+
+
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  function getSelectedUserIds() {
+    return [...document.querySelectorAll(".user-hidden")]
+      .map(i => i.value)
+      .filter(Boolean);
+  }
+
+  function refreshDropdowns() {
+    const selected = getSelectedUserIds();
+
+    document.querySelectorAll(".user-row").forEach(row => {
+      const combo = row.querySelector(".user-combo");
+      if (!combo) return;
+
+      const hidden = combo.querySelector(".user-hidden");
+      const options = combo.querySelectorAll(".user-option");
+
+      options.forEach(opt => {
+        const id = opt.dataset.id;
+
+        // permanently hide selected users from other rows
+        opt.dataset.blocked =
+          selected.includes(id) && hidden.value !== id ? "1" : "0";
+      });
+    });
+  }
+
+  function attachUserCombo(row){
+    const combo = row.querySelector(".user-combo");
+    if (!combo) return;
+
+    const input = combo.querySelector(".user-input");
+    const hidden = combo.querySelector(".user-hidden");
+    const dropdown = combo.querySelector(".user-dropdown");
+    const options = [...combo.querySelectorAll(".user-option")];
+
+    input.addEventListener("focus", () => {
+      refreshDropdowns();
+      dropdown.style.display = "block";
+
+      // apply visibility
+      options.forEach(opt => {
+        opt.style.display = opt.dataset.blocked === "1" ? "none" : "block";
+      });
+    });
+
+    combo.addEventListener("click", () => input.focus());
+
+    input.addEventListener("input", () => {
+      const q = input.value.toLowerCase();
+
+      options.forEach(opt => {
+        if (opt.dataset.blocked === "1") {
+          opt.style.display = "none";
+          return;
+        }
+
+        opt.style.display = opt.dataset.label.toLowerCase().includes(q)
+          ? "block"
+          : "none";
+      });
+    });
+
+    options.forEach(opt => {
+  opt.addEventListener("click", () => {
+    hidden.value = opt.dataset.id;
+    input.value = opt.dataset.label;
+    dropdown.style.display = "none";
+
+    // ✅ show remove button even for first row
+    const row = combo.closest(".user-row");
+    row.querySelector(".remove-user").style.display = "inline-block";
+
+    refreshDropdowns();
+  });
+});
+
+
+    document.addEventListener("click", e => {
+      if (!combo.contains(e.target)) dropdown.style.display = "none";
+    });
+  }
+
+  document.querySelectorAll(".user-row").forEach(attachUserCombo);
+
+  const observer = new MutationObserver(muts => {
+    muts.forEach(m =>
+      m.addedNodes.forEach(n => {
+        if (n.classList?.contains("user-row")) {
+          attachUserCombo(n);
+          refreshDropdowns();
+        }
+      })
+    );
+  });
+
+  observer.observe(document.getElementById("userAssignList"), {
+    childList: true
+  });
+
+});
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  const modal = document.getElementById("createWorkcycleModal");
+  const form  = modal.querySelector("form");
+
+  const titleInput = document.getElementById("workcycleTitle");
+  const dueInput   = document.getElementById("dueDatePicker");
+  const teamSelect = document.getElementById("teamSelect");
+
+  /* ==========================
+     HELPERS
+     ========================== */
+
+  function hasAssignedUsers() {
+    return [...document.querySelectorAll(".user-hidden")]
+      .some(i => i.value.trim() !== "");
+  }
+
+  function clearErrors() {
+    modal.querySelectorAll(".field-error-text").forEach(el => {
+      el.textContent = "";
+      el.classList.add("d-none");
+    });
+
+    modal.querySelectorAll(".field-error-label")
+      .forEach(el => el.classList.remove("field-error-label"));
+
+    modal.querySelectorAll(".field-error-input")
+      .forEach(el => el.classList.remove("field-error-input"));
+  }
+
+  function showFieldError(fieldWrapper, inputEl, message) {
+    if (!fieldWrapper) return;
+
+    const label = fieldWrapper.querySelector("label");
+    const error = fieldWrapper.querySelector(".field-error-text");
+
+    if (label) label.classList.add("field-error-label");
+
+    if (inputEl) {
+      inputEl.classList.add("field-error-input");
+      inputEl.focus();
+    }
+
+    if (error) {
+      error.textContent = message;
+      error.classList.remove("d-none");
+    }
+  }
+
+  /* ==========================
+     FORM SUBMIT VALIDATION
+     ========================== */
+
+  form.addEventListener("submit", e => {
+    clearErrors();
+
+    /* ---------- TITLE ---------- */
+    if (!titleInput.value.trim()) {
+      e.preventDefault();
+      showFieldError(
+        titleInput.closest(".mb-3"),
+        titleInput,
+        "Title is required."
+      );
+      return;
+    }
+
+    /* ---------- DUE DATE ---------- */
+    if (!dueInput.value.trim()) {
+      e.preventDefault();
+      showFieldError(
+        dueInput.closest(".mb-4"),
+        dueInput,
+        "Due date is required."
+      );
+      return;
+    }
+
+    /* ---------- ASSIGNMENT ---------- */
+    const usersSelected = hasAssignedUsers();
+    const teamSelected  = teamSelect.value !== "";
+
+    if (!usersSelected && !teamSelected) {
+      e.preventDefault();
+      showFieldError(
+        document.getElementById("assignUsersSection"),
+        null,
+        "Assign at least one user or select a team."
+      );
+      return;
+    }
+
+    if (usersSelected && teamSelected) {
+      e.preventDefault();
+      showFieldError(
+        document.getElementById("assignTeamSection"),
+        teamSelect,
+        "Choose users OR a team, not both."
+      );
+      return;
+    }
+
+    // ✅ Passed all checks → form submits normally
   });
 
 });

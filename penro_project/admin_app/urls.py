@@ -7,16 +7,15 @@ from admin_app.views import (
     completed_work_summary, done_workers_by_workcycle,
     review_work_item, admin_work_item_discussion, admin_work_item_threads,
 )
+from .views.notification_views import admin_notifications
 
 app_name = "admin_app"
 
+
 urlpatterns = [
     path("", dashboard, name="dashboard"),
-       path(
-    "discussions/",
-    admin_work_item_threads,
-    name="discussion-list"
-),
+    path("discussions/", admin_work_item_threads, name="discussion-list"),
+    path("notifications/", admin_notifications, name="admin-notifications"),
 
     path("workcycles/", workcycle_list, name="workcycles"),
     path("workcycles/create/", create_workcycle, name="workcycle-create"),

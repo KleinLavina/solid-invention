@@ -16,11 +16,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-*9e7$tpnxb5c_0eufd1gf1qr(v-x6=dw=(5s#aup25qwhn%+d+'
 DEBUG = True
 ALLOWED_HOSTS = []
+
 SECURE_REDIRECT_EXEMPT = [r'^auth/login/$']
 
+LOGIN_URL = "/auth/login/"
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/auth/login/"
-
 
 # -------------------------------------------------
 # APPLICATIONS
@@ -32,18 +33,30 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     'django_crontab',
 
-    'accounts.apps.AccountsConfig',                         # ✅ main accounts app
+    'accounts.apps.AccountsConfig',
     'notifications.apps.NotificationsConfig',
+
+    'django_celery_beat',  # ✅ REGISTER ONCE
 
     'admin_app',
     'user_app',
 ]
 
-
+# -------------------------------------------------
+# AUTH
+# -------------------------------------------------
 AUTH_USER_MODEL = 'accounts.User'
-LOGIN_URL = "/auth/login/"
+
+# -------------------------------------------------
+# CELERY
+# -------------------------------------------------
+CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_TIMEZONE = "Asia/Manila"
 
 # -------------------------------------------------
 # MIDDLEWARE
@@ -55,13 +68,12 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
 
-    # ✅ MUST be here
+    # Custom middleware
     "middleware.auth_required.LoginRequiredMiddleware",
 
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
 
 # -------------------------------------------------
 # URLS / WSGI
@@ -112,19 +124,16 @@ AUTH_PASSWORD_VALIDATORS = [
 # INTERNATIONALIZATION
 # -------------------------------------------------
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Manila'
 USE_I18N = True
 USE_TZ = True
 
 # -------------------------------------------------
-# STATIC FILES
+# STATIC & MEDIA
 # -------------------------------------------------
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# -------------------------------------------------
-# MEDIA FILES (UPLOADS & DOWNLOADS)
-# -------------------------------------------------
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
@@ -132,4 +141,3 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # DEFAULTS
 # -------------------------------------------------
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-

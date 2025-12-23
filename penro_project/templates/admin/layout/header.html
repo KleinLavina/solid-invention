@@ -2,197 +2,498 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin Header</title>
 
-<link rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-      referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" referrerpolicy="no-referrer" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
-/* ================= HEADER ================= */
-.ah{
-  position:sticky;
-  top:0;
-  z-index:1050;
-  display:flex;
-  align-items:center;
-  padding:.6rem 1.1rem;
-  background:linear-gradient(90deg,#1e293b,#334155);
-  color:#fff;
-  box-shadow:0 2px 10px rgba(0,0,0,.15);
+/* ================= SCOPED ADMIN HEADER STYLES ================= */
+/* All classes prefixed with 'ah-' to avoid conflicts */
+
+.ah-header {
+  position: sticky;
+  top: 0;
+  z-index: 1050;
+  display: flex;
+  align-items: center;
+  padding: 0.65rem 1.25rem;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.97) 0%, rgba(30, 41, 59, 0.98) 100%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  animation: ah-slideDown 0.4s ease-out;
 }
 
-/* LEFT */
-.left-section{
-  display:flex;
-  align-items:center;
+@keyframes ah-slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* LEFT SECTION */
+.ah-left-section {
+  display: flex;
+  align-items: center;
 }
 
 /* LOGO */
-.logo{
-  display:flex;
-  align-items:center;
-  gap:.6rem;
-}
-.ico{
-  width:34px;
-  height:34px;
-  display:grid;
-  place-items:center;
-  background:linear-gradient(135deg,#3b82f6,#1d4ed8);
-  border-radius:8px;
-}
-.logo-text b{font-size:.9rem}
-.logo-text small{font-size:.6rem;opacity:.7}
-
-/* RIGHT GROUP */
-.right-section{
-  margin-left:auto; /* THIS IS THE KEY FIX */
-  display:flex;
-  align-items:center;
-  gap:.5rem;
+.ah-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  text-decoration: none;
+  transition: transform 0.2s ease;
 }
 
-/* DESKTOP NAV (RIGHT SIDE) */
-.nav{
-  display:flex;
-  gap:.35rem;
+.ah-logo:hover {
+  transform: translateY(-1px);
 }
-.nav a{
-  position:relative;
-  width:42px;
-  height:38px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  color:#e5e7eb;
-  border-radius:10px;
-  text-decoration:none;
+
+.ah-ico {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  border-radius: 10px;
+  font-size: 1rem;
+  color: #fff;
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+  transition: all 0.3s ease;
 }
-.nav a:hover{background:rgba(255,255,255,.14)}
-.nav a.active{background:rgba(59,130,246,.4)}
-.nav a.disabled{opacity:.45;pointer-events:none}
+
+.ah-ico::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  border-radius: 13px;
+  z-index: -1;
+  opacity: 0;
+  filter: blur(10px);
+  transition: opacity 0.3s ease;
+}
+
+.ah-logo:hover .ah-ico::after {
+  opacity: 0.6;
+}
+
+.ah-logo-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.ah-logo-text b {
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+
+.ah-logo-text small {
+  font-size: 0.65rem;
+  font-weight: 500;
+  opacity: 0.6;
+  letter-spacing: 0.01em;
+}
+
+/* RIGHT SECTION */
+.ah-right-section {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* NAVIGATION */
+.ah-nav {
+  display: flex;
+  gap: 0.3rem;
+  padding: 0.25rem;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ah-nav a {
+  position: relative;
+  width: 42px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.7);
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+.ah-nav a::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.ah-nav a:hover {
+  color: #fff;
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.4), inset 0 0 0 1px rgba(59, 130, 246, 0.2);
+}
+
+.ah-nav a:hover::before {
+  opacity: 0.2;
+}
+
+.ah-nav a.active {
+  color: #fff;
+  background: rgba(59, 130, 246, 0.35);
+  box-shadow: inset 0 0 0 1px rgba(59, 130, 246, 0.4);
+}
+
+.ah-nav a.disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
 
 /* TOOLTIP */
-.nav span{
-  position:absolute;
-  bottom:-28px;
-  background:#111827;
-  font-size:.7rem;
-  padding:.2rem .45rem;
-  border-radius:6px;
-  opacity:0;
-  transition:.15s;
-  white-space:nowrap;
+.ah-nav span.ah-tooltip {
+  position: absolute;
+  bottom: -32px;
+  left: 50%;
+  transform: translateX(-50%) translateY(5px);
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.7rem;
+  font-weight: 500;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  z-index: 100;
 }
-.nav a:hover span{opacity:1}
 
-/* SOON */
-.nav em{
-  position:absolute;
-  top:-4px;
-  right:-6px;
-  font-size:.55rem;
-  padding:.05rem .3rem;
-  border-radius:6px;
-  background:rgba(255,255,255,.25);
+.ah-nav span.ah-tooltip::before {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 7px;
+  height: 7px;
+  background: rgba(15, 23, 42, 0.95);
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ah-nav a:hover span.ah-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* BADGE (SOON) */
+.ah-nav em {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  font-size: 0.5rem;
+  font-style: normal;
+  font-weight: 600;
+  padding: 0.1rem 0.3rem;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
 
 /* ACTIONS */
-.actions{
-  display:flex;
-  align-items:center;
-  gap:.5rem;
+.ah-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: 0.5rem;
 }
 
-/* MOBILE BUTTON */
-.menu-btn{
-  display:none;
-  width:38px;
-  height:36px;
-  border-radius:8px;
-  background:rgba(255,255,255,.12);
-  border:1px solid rgba(255,255,255,.2);
-  color:#fff;
-  cursor:pointer;
+/* MOBILE MENU BUTTON */
+.ah-menu-btn {
+  display: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-/* USER */
-.user{position:relative}
-.ubox{
-  display:flex;
-  align-items:center;
-  gap:.45rem;
-  padding:.35rem .7rem;
-  border-radius:8px;
-  background:rgba(255,255,255,.12);
-  border:1px solid rgba(255,255,255,.2);
-  color:#fff;
-  cursor:pointer;
+.ah-menu-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
 }
-.ubox i:last-child{font-size:.7rem}
 
 /* USER DROPDOWN */
-.udrop{
-  position:absolute;
-  right:0;
-  top:calc(100% + 8px);
-  width:160px;
-  background:#fff;
-  border-radius:8px;
-  border:1px solid #e5e7eb;
-  box-shadow:0 15px 30px rgba(0,0,0,.25);
-  display:none;
-  z-index:2000;
+.ah-user {
+  position: relative;
 }
-.udrop a{
-  display:flex;
-  gap:.5rem;
-  padding:.55rem .7rem;
-  font-size:.85rem;
-  color:#334155;
-  text-decoration:none;
+
+.ah-ubox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.7rem 0.4rem 0.5rem;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
-.udrop a:hover{background:#f8fafc}
-.udrop .out{color:#dc2626}
-.udrop.show{display:block}
 
-/* ================= MOBILE ================= */
-@media (max-width:768px){
+.ah-ubox:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.2);
+}
 
-  /* HIDE DESKTOP NAV */
-  .nav{
-    position:absolute;
-    top:100%;
-    right:1rem;
-    width:220px;
-    background:#0f172a;
-    border-radius:14px;
-    padding:.4rem;
-    display:none;
-    flex-direction:column;
-    box-shadow:0 20px 40px rgba(0,0,0,.45);
-    z-index:1500;
+.ah-ubox i:first-child {
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.ah-ubox i:last-child {
+  font-size: 0.65rem;
+  opacity: 0.7;
+  transition: transform 0.2s ease;
+}
+
+.ah-user.open .ah-ubox i:last-child {
+  transform: rotate(180deg);
+}
+
+/* USER DROPDOWN MENU */
+.ah-udrop {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  width: 240px;
+  background: rgba(15, 23, 42, 0.98);
+  backdrop-filter: blur(20px);
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-8px) scale(0.95);
+  transform-origin: top right;
+  transition: all 0.2s ease;
+  z-index: 2000;
+  overflow: hidden;
+}
+
+.ah-user.open .ah-udrop {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+}
+
+/* Profile Header in Dropdown */
+.ah-udrop-header {
+  padding: 1rem;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(139, 92, 246, 0.1) 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.ah-udrop-avatar {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  border-radius: 10px;
+  font-size: 1.1rem;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  flex-shrink: 0;
+}
+
+.ah-udrop-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.ah-udrop-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ah-udrop-email {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.5);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ah-udrop-links {
+  padding: 0.5rem;
+}
+
+.ah-udrop a {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.65rem 0.8rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.75);
+  text-decoration: none;
+  border-radius: 8px;
+  transition: all 0.15s ease;
+}
+
+.ah-udrop a i {
+  width: 18px;
+  text-align: center;
+  font-size: 0.9rem;
+  opacity: 0.7;
+}
+
+.ah-udrop a:hover {
+  background: rgba(59, 130, 246, 0.15);
+  color: #fff;
+}
+
+.ah-udrop a:hover i {
+  opacity: 1;
+}
+
+.ah-udrop-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 0.25rem 0.5rem;
+}
+
+.ah-udrop a.ah-out {
+  color: #f87171;
+}
+
+.ah-udrop a.ah-out:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: #fca5a5;
+}
+
+/* ================= MOBILE STYLES ================= */
+@media (max-width: 768px) {
+  .ah-nav {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 1rem;
+    width: 240px;
+    background: rgba(15, 23, 42, 0.98);
+    backdrop-filter: blur(20px);
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0.5rem;
+    display: none;
+    flex-direction: column;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+    z-index: 1500;
   }
-  .nav.show{display:flex}
 
-  .nav a{
-    width:100%;
-    justify-content:flex-start;
-    gap:.6rem;
-    padding:.6rem .7rem;
+  .ah-nav.show {
+    display: flex;
+    animation: ah-fadeIn 0.2s ease-out;
   }
 
-  .nav span{
-    position:static;
-    opacity:1;
-    background:none;
-    font-size:.85rem;
+  @keyframes ah-fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
-  .menu-btn{
-    display:grid;
-    place-items:center;
+  .ah-nav a {
+    width: 100%;
+    justify-content: flex-start;
+    gap: 0.7rem;
+    padding: 0.7rem 0.85rem;
+    border-radius: 8px;
+  }
+
+  .ah-nav a::before {
+    display: none;
+  }
+
+  .ah-nav a:hover {
+    background: rgba(59, 130, 246, 0.2);
+    box-shadow: none;
+  }
+
+  .ah-nav span.ah-tooltip {
+    position: static;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 0.88rem;
+    box-shadow: none;
+  }
+
+  .ah-nav span.ah-tooltip::before {
+    display: none;
+  }
+
+  .ah-menu-btn {
+    display: grid;
+    place-items: center;
+  }
+  .ah-nav a:hover span.ah-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(10%) translateY(0);
+}
+
+}
+
+@media (max-width: 480px) {
+  .ah-header {
+    padding: 0.55rem 0.9rem;
+  }
+
+  .ah-logo-text {
+    display: none;
+  }
+
+  .ah-ubox span {
+    display: none;
+  }
+
+  .ah-ubox {
+    padding: 0.45rem;
   }
 }
 </style>
@@ -200,64 +501,88 @@
 
 <body>
 
-<header class="ah">
+<header class="ah-header">
 
   <!-- LEFT -->
-  <div class="left-section">
-    <div class="logo">
-      <span class="ico"><i class="fas fa-landmark"></i></span>
-      <div class="logo-text">
+  <div class="ah-left-section">
+    <a href="{% url 'admin_app:dashboard' %}" class="ah-logo">
+      <span class="ah-ico"><i class="fas fa-landmark"></i></span>
+      <div class="ah-logo-text">
         <b>Admin</b>
         <small>PENRO Work Submission Tracker</small>
       </div>
-    </div>
+    </a>
   </div>
 
   <!-- RIGHT -->
-  <div class="right-section">
+  <div class="ah-right-section">
 
-    <nav class="nav" data-nav>
-      <a href="{% url 'admin_app:dashboard' %}">
-        <i class="fas fa-tachometer-alt"></i><span>Dashboard</span>
+    <nav class="ah-nav" data-nav>
+      <a href="{% url 'admin_app:dashboard' %}" data-nav-link>
+        <i class="fas fa-tachometer-alt"></i>
+        <span class="ah-tooltip">Dashboard</span>
       </a>
-      <a href="{% url 'admin_app:workcycles' %}">
-        <i class="fas fa-calendar-alt"></i><span>Work Cycles</span>
+      <a href="{% url 'admin_app:workcycles' %}" data-nav-link>
+        <i class="fas fa-calendar-alt"></i>
+        <span class="ah-tooltip">Work Cycles</span>
       </a>
-      <a href="{% url 'admin_app:completed-work-summary' %}">
-        <i class="fas fa-clipboard-check"></i><span>Review</span>
+      <a href="{% url 'admin_app:completed-work-summary' %}" data-nav-link>
+        <i class="fas fa-clipboard-check"></i>
+        <span class="ah-tooltip">Review</span>
       </a>
-      <a href="{% url 'admin_app:users' %}">
-        <i class="fas fa-user-cog"></i><span>Workforces</span>
+      <a href="{% url 'admin_app:users' %}" data-nav-link>
+        <i class="fas fa-user-cog"></i>
+        <span class="ah-tooltip">Workforces</span>
       </a>
       <a class="disabled">
-        <i class="fas fa-chart-line"></i><span>Reports</span><em>Soon</em>
+        <i class="fas fa-chart-line"></i>
+        <span class="ah-tooltip">Reports</span>
+        <em>Soon</em>
       </a>
-      <a href="{% url 'admin_app:discussion-list' %}">
-        <i class="fas fa-comments"></i><span>Messages</span>
+      <a href="{% url 'admin_app:discussion-list' %}" data-nav-link>
+        <i class="fas fa-comments"></i>
+        <span class="ah-tooltip">Messages</span>
       </a>
-      <a href="{% url 'admin_app:admin-notifications' %}">
-        <i class="fas fa-bell"></i><span>Notifications</span>
+      <a href="{% url 'admin_app:admin-notifications' %}" data-nav-link>
+        <i class="fas fa-bell"></i>
+        <span class="ah-tooltip">Notifications</span>
+      </a>
+      <a href="{% url 'admin_app:documents' %}" data-nav-link>
+        <i class="fas fa-folder-open"></i>
+        <span class="ah-tooltip">Documents</span>
       </a>
     </nav>
 
-    <div class="actions">
-      <button class="menu-btn" data-menu-toggle>
+    <div class="ah-actions">
+      <button class="ah-menu-btn" data-menu-toggle>
         <i class="fas fa-bars"></i>
       </button>
 
-      <div class="user" data-user-menu>
-        <button class="ubox">
+      <div class="ah-user" data-user-menu>
+        <button class="ah-ubox">
           <i class="fas fa-user-circle"></i>
           <span>{{ request.user.username|truncatechars:12 }}</span>
           <i class="fas fa-chevron-down"></i>
         </button>
 
-        <div class="udrop">
-          <a href="#"><i class="fas fa-id-card"></i>Profile</a>
-          <a href="#"><i class="fas fa-cog"></i>Settings</a>
-          <a href="{% url 'logout' %}" class="out">
-            <i class="fas fa-sign-out-alt"></i>Logout
-          </a>
+        <div class="ah-udrop">
+          <div class="ah-udrop-header">
+            <div class="ah-udrop-avatar">
+              <i class="fas fa-user"></i>
+            </div>
+            <div class="ah-udrop-info">
+              <span class="ah-udrop-name">{{ request.user.first_name }} {{ request.user.last_name }}</span>
+              <span class="ah-udrop-email">{{ request.user.email|default:"No email set" }}</span>
+            </div>
+          </div>
+          <div class="ah-udrop-links">
+            <a href="#"><i class="fas fa-id-card"></i>Profile</a>
+            <a href="#"><i class="fas fa-cog"></i>Settings</a>
+            <div class="ah-udrop-divider"></div>
+            <a href="{% url 'logout' %}" class="ah-out">
+              <i class="fas fa-sign-out-alt"></i>Logout
+            </a>
+          </div>
         </div>
       </div>
     </div>
@@ -267,28 +592,36 @@
 
 <script>
 /* USER DROPDOWN */
-document.addEventListener("click",e=>{
-  document.querySelectorAll("[data-user-menu]").forEach(w=>{
-    const b=w.querySelector(".ubox"),
-          d=w.querySelector(".udrop");
-    if(b.contains(e.target)){
-      d.classList.toggle("show");
-    }else{
-      d.classList.remove("show");
+document.addEventListener("click", e => {
+  document.querySelectorAll("[data-user-menu]").forEach(w => {
+    const btn = w.querySelector(".ah-ubox");
+    if (btn.contains(e.target)) {
+      w.classList.toggle("open");
+    } else if (!w.contains(e.target)) {
+      w.classList.remove("open");
     }
   });
 });
 
 /* MOBILE NAV */
-document.querySelector("[data-menu-toggle]").addEventListener("click",e=>{
+document.querySelector("[data-menu-toggle]")?.addEventListener("click", e => {
   e.stopPropagation();
   document.querySelector("[data-nav]").classList.toggle("show");
 });
 
+/* CLOSE MOBILE NAV ON OUTSIDE CLICK */
+document.addEventListener("click", e => {
+  const nav = document.querySelector("[data-nav]");
+  const toggle = document.querySelector("[data-menu-toggle]");
+  if (nav && !nav.contains(e.target) && !toggle.contains(e.target)) {
+    nav.classList.remove("show");
+  }
+});
+
 /* ACTIVE LINK */
 const currentPath = location.pathname.replace(/\/$/, "");
-document.querySelectorAll(".nav a[href]").forEach(link=>{
-  if(new URL(link.href).pathname.replace(/\/$/,"")===currentPath){
+document.querySelectorAll("[data-nav-link]").forEach(link => {
+  if (new URL(link.href).pathname.replace(/\/$/, "") === currentPath) {
     link.classList.add("active");
   }
 });

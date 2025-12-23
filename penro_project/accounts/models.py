@@ -4,6 +4,8 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.conf import settings
 
+from structure.models import DocumentFolder
+from django.core.exceptions import ValidationError, PermissionDenied
 
 class User(AbstractUser):
     position_title = models.CharField(
@@ -16,7 +18,6 @@ class User(AbstractUser):
         max_length=50,
         choices=[
             ("admin", "Admin"),
-            ("manager", "Manager"),
             ("user", "User"),
         ],
         default="user",
@@ -33,25 +34,91 @@ class User(AbstractUser):
 
 
 class Team(models.Model):
+    class TeamType(models.TextChoices):
+        DIVISION = "division", "Division"
+        SECTION = "section", "Section"
+        SERVICE = "service", "Service"
+        UNIT = "unit", "Unit"
+
     name = models.CharField(
         max_length=150,
-        unique=True,
-        help_text="Team, unit, or group name"
+        help_text="Official organizational unit name"
+    )
+
+    team_type = models.CharField(
+        max_length=20,
+        choices=TeamType.choices,
+        db_index=True
+    )
+
+    parent = models.ForeignKey(
+        "self",
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        related_name="children",
+        help_text="Parent organizational unit"
     )
 
     description = models.TextField(
         blank=True,
-        help_text="Optional description of the team"
+        help_text="Optional description or mandate"
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ["name"]
+        ordering = ["team_type", "name"]
+        indexes = [
+            models.Index(fields=["team_type"]),
+            models.Index(fields=["parent"]),
+        ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["parent", "name"],
+                name="unique_team_name_per_parent"
+            )
+        ]
+
+    # ✅ HIERARCHY RULES (THE IMPORTANT PART)
+    def clean(self):
+        allowed_parents = {
+            self.TeamType.DIVISION: [None],
+            self.TeamType.SECTION: [self.TeamType.DIVISION],
+            self.TeamType.SERVICE: [self.TeamType.SECTION],
+            self.TeamType.UNIT: [self.TeamType.SECTION, self.TeamType.SERVICE],
+        }
+
+        valid_parent_types = allowed_parents[self.team_type]
+
+        # Division must be root
+        if self.team_type == self.TeamType.DIVISION:
+            if self.parent is not None:
+                raise ValidationError("Division cannot have a parent")
+            return
+
+        # All others must have a parent
+        if not self.parent:
+            raise ValidationError(
+                f"{self.get_team_type_display()} must have a parent"
+            )
+
+        # Validate parent type
+        if self.parent.team_type not in valid_parent_types:
+            allowed = ", ".join(
+                dict(self.TeamType.choices)[t]
+                for t in valid_parent_types
+            )
+            raise ValidationError(
+                f"{self.get_team_type_display()} must belong to: {allowed}"
+            )
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
 
     def __str__(self):
-        return self.name
-
+        return f"{self.name} ({self.get_team_type_display()})"
 
 class TeamMembership(models.Model):
     team = models.ForeignKey(
@@ -301,29 +368,102 @@ class WorkItem(models.Model):
 
 
 class WorkItemAttachment(models.Model):
+    ATTACHMENT_TYPE_CHOICES = [
+        ("matrix_a", "Matrix A"),
+        ("matrix_b", "Matrix B"),
+        ("mov", "MOV"),
+    ]
+
     work_item = models.ForeignKey(
         WorkItem,
         on_delete=models.CASCADE,
-        related_name="attachments",
-        help_text="Work item this file belongs to"
-    )   
-
-    file = models.FileField(
-        upload_to="work_items/",
-        help_text="Uploaded file"
+        related_name="attachments"
     )
+
+    folder = models.ForeignKey(
+        DocumentFolder,
+        null=True,
+        blank=True,
+        related_name="files",
+        on_delete=models.SET_NULL
+    )
+
+    attachment_type = models.CharField(
+        max_length=20,
+        choices=ATTACHMENT_TYPE_CHOICES,
+        db_index=True
+    )
+
+    file = models.FileField(upload_to="work_items/")
 
     uploaded_by = models.ForeignKey(
         User,
         on_delete=models.SET_NULL,
         null=True,
-        help_text="User who uploaded the file"
+        help_text="Uploader (null only for system/admin actions)"
     )
 
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        indexes = [
+            models.Index(fields=["attachment_type"]),
+            models.Index(fields=["folder"]),
+            models.Index(fields=["work_item", "folder"]),
+        ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["folder", "file"],
+                name="unique_file_per_folder"
+            )
+        ]
+
+    # ============================
+    # VALIDATION
+    # ============================
+    def clean(self):
+        if not self.folder:
+            return
+
+        # Folder must belong to same workcycle
+        if (
+            self.folder.workcycle
+            and self.folder.workcycle != self.work_item.workcycle
+        ):
+            raise ValidationError(
+                "Attachment folder does not belong to this Work Cycle."
+            )
+
+        # Enforce attachment folder type
+        if self.folder.folder_type != DocumentFolder.FolderType.ATTACHMENT:
+            raise ValidationError(
+                "Attachments must be stored in an attachment folder."
+            )
+
+    # ============================
+    # SAVE HOOK
+    # ============================
+    def save(self, *args, **kwargs):
+        # Auto-resolve folder if missing
+        if not self.folder:
+            if not self.uploaded_by:
+                raise PermissionDenied(
+                    "uploaded_by must be set when creating attachments."
+                )
+
+            from structure.services.folder_resolution import resolve_attachment_folder
+
+            self.folder = resolve_attachment_folder(
+                work_item=self.work_item,
+                attachment_type=self.attachment_type,
+                actor=self.uploaded_by
+            )
+
+        self.full_clean()
+        super().save(*args, **kwargs)
+
     def __str__(self):
-        return f"Attachment for {self.work_item}"
+        return f"{self.get_attachment_type_display()} — {self.work_item}"
 
 class WorkItemMessage(models.Model):
     work_item = models.ForeignKey(
@@ -342,7 +482,6 @@ class WorkItemMessage(models.Model):
         max_length=50,
         choices=[
             ("admin", "Admin"),
-            ("manager", "Manager"),
             ("user", "User"),
         ],
         db_index=True

@@ -1,0 +1,606 @@
+{% extends "user/layout/base.html" %}
+
+{% block title %}
+{{ attachment_label }}
+{% endblock %}
+
+{% block content %}
+
+<style>
+/* NAVY BLUE PALETTE - BRIGHTER VERSION */
+:root {
+  --navy-900: #0a1628;
+  --navy-800: #0f2744;
+  --navy-700: #1a3a5c;
+  --navy-600: #254d73;
+  --navy-500: #3a6ea5;
+  --slate-600: #475569;
+  --slate-500: #64748b;
+  --slate-400: #94a3b8;
+  --slate-200: #e2e8f0;
+  --slate-100: #f1f5f9;
+  --slate-50: #f8fafc;
+  --white: #ffffff;
+  --cyan-400: #22d3ee;
+  --cyan-500: #06b6d4;
+  --cyan-50: #ecfeff;
+}
+
+/* BACK LINK */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--navy-600);
+  text-decoration: none;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  margin-bottom: 1.5rem;
+}
+
+.back-link:hover {
+  background: var(--slate-100);
+  color: var(--navy-700);
+  transform: translateX(-2px);
+}
+
+.back-link i {
+  font-size: 0.85rem;
+}
+
+/* PAGE HEADER */
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  padding: 1.25rem 1.5rem;
+  background: linear-gradient(135deg, var(--slate-50) 0%, var(--white) 100%);
+  border-radius: 12px;
+  border: 1px solid var(--slate-200);
+}
+
+.page-header i {
+  font-size: 1.5rem;
+  color: var(--cyan-500);
+}
+
+.page-header h5 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--navy-800);
+}
+
+/* CARD IMPROVEMENTS */
+.custom-card {
+  background: var(--white);
+  border: 1px solid var(--slate-200);
+  border-radius: 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+  transition: box-shadow 0.2s ease;
+}
+
+.custom-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.custom-card-header {
+  padding: 1.25rem 1.5rem;
+  background: linear-gradient(135deg, var(--navy-800) 0%, var(--navy-700) 100%);
+  border-bottom: none;
+}
+
+.custom-card-header-title {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--white);
+}
+
+.custom-card-header-title i {
+  font-size: 1.1rem;
+  color: var(--cyan-400);
+}
+
+.custom-card-body {
+  padding: 1.75rem 1.5rem;
+  background: var(--slate-50);
+}
+
+/* ATTACHMENT GROUPS */
+.attachment-group {
+  margin-bottom: 1.75rem;
+}
+
+.attachment-group:last-child {
+  margin-bottom: 0;
+}
+
+.attachment-group-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--navy-700);
+  background: var(--white);
+  border-radius: 8px;
+  border-left: 3px solid var(--cyan-500);
+}
+
+/* FILE LIST */
+.file-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.file-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 1.1rem;
+  background: var(--white);
+  border: 1px solid var(--slate-200);
+  border-radius: 10px;
+  transition: all 0.2s ease;
+}
+
+.file-item:hover {
+  background: var(--slate-50);
+  border-color: var(--cyan-400);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(34, 211, 238, 0.15);
+}
+
+.file-link {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-size: 0.875rem;
+  color: var(--navy-700);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.file-link:hover {
+  color: var(--cyan-500);
+}
+
+.file-link i {
+  font-size: 1rem;
+  color: var(--cyan-500);
+}
+
+.file-date {
+  font-size: 0.8rem;
+  color: var(--slate-500);
+  font-weight: 500;
+}
+
+.empty-state {
+  padding: 2rem;
+  text-align: center;
+  color: var(--slate-500);
+  font-style: italic;
+  background: var(--white);
+  border: 2px dashed var(--slate-200);
+  border-radius: 10px;
+}
+
+/* DROPZONE */
+.dropzone {
+  position: relative;
+  border: 3px dashed var(--slate-300);
+  border-radius: 14px;
+  padding: 2.5rem 2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: var(--white);
+  text-align: center;
+}
+
+.dropzone::before {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  border: 2px dotted var(--slate-200);
+  border-radius: 10px;
+  pointer-events: none;
+  transition: all 0.3s ease;
+}
+
+.dropzone:hover {
+  background: var(--cyan-50);
+  border-color: var(--cyan-400);
+}
+
+.dropzone:hover::before {
+  border-color: var(--cyan-300);
+}
+
+.dropzone.dragover {
+  background: var(--cyan-50);
+  border-color: var(--cyan-500);
+  border-width: 3px;
+  transform: scale(1.01);
+}
+
+.dropzone.dragover::before {
+  border-color: var(--cyan-400);
+  border-width: 2px;
+}
+
+.dropzone-icon {
+  font-size: 2.5rem;
+  color: var(--cyan-500);
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.dropzone-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--navy-700);
+  margin-bottom: 0.4rem;
+}
+
+.dropzone-subtitle {
+  font-size: 0.875rem;
+  color: var(--slate-500);
+  margin-bottom: 1.25rem;
+}
+
+.choose-files-btn {
+  padding: 0.6rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--white);
+  background: linear-gradient(135deg, var(--cyan-500), var(--cyan-400));
+  border: none;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(34, 211, 238, 0.25);
+}
+
+.choose-files-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(34, 211, 238, 0.35);
+}
+
+/* SELECTED FILES LIST */
+.selected-files-list {
+  list-style: none;
+  padding: 0;
+  margin: 1.25rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.selected-files-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--navy-700);
+  background: var(--slate-100);
+  border-radius: 8px;
+  border-left: 3px solid var(--cyan-500);
+}
+
+.selected-files-header i {
+  color: var(--cyan-500);
+  font-size: 0.95rem;
+}
+
+.selected-file-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1rem;
+  background: var(--white);
+  border: 1px solid var(--slate-200);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.selected-file-item:hover {
+  background: var(--slate-50);
+  border-color: var(--slate-300);
+}
+
+.selected-file-info {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-size: 0.875rem;
+  color: var(--navy-700);
+}
+
+.selected-file-info i {
+  color: var(--cyan-500);
+  font-size: 1rem;
+}
+
+.file-size {
+  color: var(--slate-500);
+  font-size: 0.8rem;
+}
+
+.remove-file-btn {
+  padding: 0.25rem 0.5rem;
+  font-size: 1rem;
+  line-height: 1;
+  color: var(--slate-400);
+  background: none;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.remove-file-btn:hover {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+}
+
+/* UPLOAD BUTTON */
+.upload-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.75rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--white);
+  background: linear-gradient(135deg, var(--navy-700), var(--navy-600));
+  border: none;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(15, 39, 68, 0.25);
+}
+
+.upload-btn:hover {
+  background: linear-gradient(135deg, var(--navy-600), var(--navy-500));
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(15, 39, 68, 0.35);
+}
+
+.upload-btn i {
+  font-size: 0.95rem;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .page-header {
+    padding: 1rem 1.25rem;
+  }
+  
+  .custom-card-header,
+  .custom-card-body {
+    padding: 1rem 1.25rem;
+  }
+  
+  .dropzone {
+    padding: 2rem 1.5rem;
+  }
+  
+  .file-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}
+</style>
+
+<!-- ================= BACK LINK ================= -->
+<a href="{% url 'user_app:work-item-detail' work_item.id %}" class="back-link">
+  <i class="fas fa-arrow-left"></i>
+  <span>Back to Work Item</span>
+</a>
+
+<!-- ================= PAGE HEADER ================= -->
+<div class="page-header">
+  <i class="fas fa-paperclip"></i>
+  <h5>{{ attachment_label }}</h5>
+</div>
+
+<!-- ================= ATTACHMENTS ================= -->
+<div class="custom-card">
+  <!-- HEADER -->
+  <div class="custom-card-header">
+    <div class="custom-card-header-title">
+      <i class="fas fa-file-archive"></i>
+      <span>Uploaded Files</span>
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div class="custom-card-body">
+    {% if attachments %}
+      {% regroup attachments by attachment_type as grouped_attachments %}
+
+      {% for group in grouped_attachments %}
+        <div class="attachment-group">
+          <div class="attachment-group-title">
+            {% if group.grouper == "matrix_a" %}
+              <i class="fas fa-table"></i>
+              Monthly Report Form – Matrix A
+            {% elif group.grouper == "matrix_b" %}
+              <i class="fas fa-table"></i>
+              Monthly Report Form – Matrix B
+            {% elif group.grouper == "mov" %}
+              <i class="fas fa-check-circle"></i>
+              Means of Verification (MOV)
+            {% endif %}
+          </div>
+
+          <ul class="file-list">
+            {% for f in group.list %}
+              <li class="file-item">
+                <a href="{{ f.file.url }}" download class="file-link">
+                  <i class="far fa-file"></i>
+                  <span>{{ f.file.name|slice:"-35:" }}</span>
+                </a>
+                <span class="file-date">
+                  {{ f.uploaded_at|date:"M d, Y · h:i A" }}
+                </span>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endfor %}
+
+    {% else %}
+      <div class="empty-state">
+        <i class="fas fa-folder-open" style="font-size: 2.5rem; color: var(--slate-400); margin-bottom: 0.75rem; display: block;"></i>
+        <div>No attachments uploaded yet.</div>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- ================= UPLOAD ================= -->
+<div class="custom-card">
+  <div class="custom-card-header">
+    <div class="custom-card-header-title">
+      <i class="fas fa-cloud-upload-alt"></i>
+      <span>Upload Files</span>
+    </div>
+  </div>
+
+  <div class="custom-card-body">
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="add_attachment">
+      <input type="hidden" name="attachment_type" value="{{ attachment_type }}">
+
+      <input type="file"
+             id="attachmentInput"
+             name="attachments"
+             multiple
+             hidden>
+
+      <div id="dropArea" class="dropzone">
+        <i class="fas fa-cloud-upload-alt dropzone-icon"></i>
+        <p class="dropzone-title">Drag & drop files here</p>
+        <p class="dropzone-subtitle">or click the button below to choose files</p>
+        <button type="button"
+                id="chooseFilesBtn"
+                class="choose-files-btn">
+          <i class="fas fa-folder-open"></i>
+          Choose Files
+        </button>
+      </div>
+
+      <div id="fileListContainer" style="display: none;">
+        <div class="selected-files-header">
+          <i class="fas fa-folder"></i>
+          <span>Files ready to upload (<span id="fileCount">0</span>)</span>
+        </div>
+        <ul id="fileList" class="selected-files-list"></ul>
+      </div>
+
+      <button type="submit" class="upload-btn">
+        <i class="fas fa-upload"></i>
+        <span>Upload Files</span>
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- ================= JS ================= -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const dropArea = document.getElementById("dropArea");
+  const input = document.getElementById("attachmentInput");
+  const fileList = document.getElementById("fileList");
+  const chooseBtn = document.getElementById("chooseFilesBtn");
+  const dataTransfer = new DataTransfer();
+
+  dropArea.addEventListener("click", () => input.click());
+  
+  chooseBtn.addEventListener("click", e => {
+    e.stopPropagation();
+    input.click();
+  });
+
+  dropArea.addEventListener("dragover", e => {
+    e.preventDefault();
+    dropArea.classList.add("dragover");
+  });
+
+  dropArea.addEventListener("dragleave", () =>
+    dropArea.classList.remove("dragover")
+  );
+
+  dropArea.addEventListener("drop", e => {
+    e.preventDefault();
+    dropArea.classList.remove("dragover");
+    addFiles(e.dataTransfer.files);
+  });
+
+  input.addEventListener("change", () => addFiles(input.files));
+
+  function addFiles(files){
+    for (const file of files) {
+      if (![...dataTransfer.files].some(f => f.name === file.name && f.size === file.size)) {
+        dataTransfer.items.add(file);
+      }
+    }
+    input.files = dataTransfer.files;
+    renderFiles();
+  }
+
+  function renderFiles(){
+    fileList.innerHTML = "";
+    [...dataTransfer.files].forEach((file, index) => {
+      const li = document.createElement("li");
+      li.className = "selected-file-item";
+      li.innerHTML = `
+        <span class="selected-file-info">
+          <i class="far fa-file"></i>
+          <span>${file.name}</span>
+          <span class="file-size">(${(file.size / 1024 / 1024).toFixed(2)} MB)</span>
+        </span>
+        <button type="button"
+                class="remove-file-btn"
+                onclick="removeFile(${index})"
+                title="Remove file">
+          <i class="fas fa-times"></i>
+        </button>
+      `;
+      fileList.appendChild(li);
+    });
+  }
+
+  window.removeFile = function(index){
+    const files = [...dataTransfer.files];
+    dataTransfer.items.clear();
+    files.forEach((f, i) => i !== index && dataTransfer.items.add(f));
+    input.files = dataTransfer.files;
+    renderFiles();
+  };
+});
+</script>
+
+{% endblock %}  

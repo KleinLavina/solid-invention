@@ -1,0 +1,271 @@
+{% extends "admin/layout/base.html" %}
+{% block title %}File Manager{% endblock %}
+{% block page_title %}File Manager{% endblock %}
+
+{% block content %}
+
+<!-- =========================
+     BREADCRUMB (FULL PATH)
+========================= -->
+<nav class="mb-3 small"
+     data-root-id="{{ root_folder.id }}">
+  <a href="{% url 'admin_app:file-manager' %}">Root</a>
+
+  {% if current_folder %}
+    {% for f in current_folder.get_ancestors %}
+      / <a href="{% url 'admin_app:file-manager-folder' f.id %}">{{ f.name }}</a>
+    {% endfor %}
+    / {{ current_folder.name }}
+  {% endif %}
+</nav>
+
+<!-- =========================
+     CREATE FOLDER
+========================= -->
+<form method="post"
+      action="{% url 'admin_app:create-folder' %}"
+      class="mb-3">
+  {% csrf_token %}
+  <input type="hidden" name="parent_id" value="{{ current_folder.id }}">
+  <div class="input-group input-group-sm" style="max-width:320px">
+    <input
+      name="name"
+      class="form-control"
+      placeholder="New folder name"
+      required
+    >
+    <button class="btn btn-outline-primary">
+      Create Folder
+    </button>
+  </div>
+</form>
+
+<!-- =========================
+     FOLDERS (DROP TARGETS)
+========================= -->
+<div class="row g-3 mb-4">
+  {% for f in folders %}
+  <div class="col-md-2">
+    <div
+      class="card text-center p-3 shadow-sm folder-dropzone"
+      data-folder-id="{{ f.id }}"
+      data-folder-type="{{ f.folder_type }}"
+    >
+      <a href="{% url 'admin_app:file-manager-folder' f.id %}"
+         class="text-decoration-none text-dark">
+        <i class="fas fa-folder fa-3x text-warning"></i>
+        <div class="fw-semibold small mt-2">{{ f.name }}</div>
+        <div class="text-muted small">{{ f.get_folder_type_display }}</div>
+      </a>
+    </div>
+  </div>
+  {% empty %}
+    <div class="text-muted small">No folders</div>
+  {% endfor %}
+</div>
+
+<!-- =========================
+     FILES (DRAGGABLE)
+========================= -->
+<div class="card shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>File</th>
+          <th>Work Item</th>
+          <th>Uploaded By</th>
+          <th>Date</th>
+          <th></th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for a in attachments %}
+        <tr
+          draggable="true"
+          class="draggable-file"
+          data-attachment-id="{{ a.id }}"
+        >
+          <td>
+            <i class="fas fa-file me-1 text-secondary"></i>
+            {{ a.file.name|cut:"work_items/" }}
+          </td>
+          <td>{{ a.work_item }}</td>
+          <td>{{ a.uploaded_by }}</td>
+          <td>{{ a.uploaded_at|date:"M d, Y" }}</td>
+          <td>
+            <a href="{{ a.file.url }}"
+               target="_blank"
+               class="btn btn-sm btn-outline-primary">
+              Download
+            </a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5"
+              class="text-center text-muted py-3">
+            Empty folder
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+
+    </table>
+  </div>
+</div>
+
+<!-- =========================
+     STYLES
+========================= -->
+<style>
+.folder-dropzone{
+  transition: all .15s ease;
+}
+.folder-dropzone.drag-over{
+  border:2px dashed #0d6efd;
+  background:#f0f6ff;
+}
+.draggable-file{
+  cursor: grab;
+}
+.draggable-file:active{
+  cursor: grabbing;
+}
+.toast-box{
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  background:#212529;
+  color:#fff;
+  padding:10px 14px;
+  border-radius:8px;
+  font-size:.85rem;
+  z-index:9999;
+}
+.toast-box button{
+  margin-left:10px;
+  background:#fff;
+  border:none;
+  padding:2px 6px;
+  cursor:pointer;
+}
+</style>
+
+<!-- =========================
+     DRAG & DROP LOGIC
+========================= -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  let draggedIds = [];
+  let lastMove = null;
+
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== "") {
+      const cookies = document.cookie.split(";");
+      for (let cookie of cookies) {
+        cookie = cookie.trim();
+        if (cookie.startsWith(name + "=")) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+
+  /* SELECT + DRAG */
+  document.querySelectorAll(".draggable-file").forEach(row => {
+
+    row.addEventListener("click", e => {
+      if (e.ctrlKey) row.classList.toggle("table-active");
+    });
+
+    row.addEventListener("dragstart", () => {
+      draggedIds = [...document.querySelectorAll(".draggable-file.table-active")]
+        .map(r => r.dataset.attachmentId);
+
+      if (!draggedIds.length) {
+        draggedIds = [row.dataset.attachmentId];
+      }
+    });
+  });
+
+  /* DROP TARGETS */
+  document.querySelectorAll(".folder-dropzone").forEach(folder => {
+
+    folder.addEventListener("dragover", e => {
+      e.preventDefault();
+      folder.classList.add("drag-over");
+    });
+
+    folder.addEventListener("dragleave", () => {
+      folder.classList.remove("drag-over");
+    });
+
+    folder.addEventListener("drop", e => {
+      e.preventDefault();
+      folder.classList.remove("drag-over");
+
+      if (folder.dataset.folderType !== "attachment") {
+        showToast("Cannot drop files here");
+        return;
+      }
+
+      moveFiles(draggedIds, folder.dataset.folderId);
+    });
+  });
+
+  /* ROOT DROP */
+  document.querySelector("nav").addEventListener("dragover", e => e.preventDefault());
+  document.querySelector("nav").addEventListener("drop", e => {
+    e.preventDefault();
+    moveFiles(draggedIds, document.querySelector("nav").dataset.rootId);
+  });
+
+  function moveFiles(ids, folderId) {
+    fetch("{% url 'admin_app:move-attachment' %}", {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": getCookie("csrftoken"),
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: new URLSearchParams({
+        "attachment_ids[]": ids,
+        folder_id: folderId
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      lastMove = data.moved;
+      ids.forEach(id =>
+        document.querySelector(`[data-attachment-id="${id}"]`)?.remove()
+      );
+      showToast("Files moved", true);
+    });
+  }
+
+  function showToast(msg, undo=false) {
+    const toast = document.createElement("div");
+    toast.className = "toast-box";
+    toast.innerHTML = `${msg}${undo ? '<button id="undoMove">Undo</button>' : ''}`;
+    document.body.appendChild(toast);
+
+    if (undo) document.getElementById("undoMove").onclick = undoMove;
+    setTimeout(() => toast.remove(), 5000);
+  }
+
+  function undoMove() {
+    if (!lastMove) return;
+    lastMove.forEach(m => moveFiles([m.id], m.old_folder));
+    lastMove = null;
+    showToast("Move undone");
+  }
+
+});
+</script>
+
+{% endblock %}

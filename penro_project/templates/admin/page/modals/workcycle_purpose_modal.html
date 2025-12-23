@@ -1,0 +1,111 @@
+<!-- PURPOSE MODAL -->
+<div class="modal fade"
+     id="workcyclePurposeModal"
+     tabindex="-1"
+     aria-labelledby="workcyclePurposeLabel"
+     aria-hidden="true">
+
+  <div class="modal-dialog modal-dialog-centered modal-md">
+    <div class="modal-content">
+
+      <!-- HEADER -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="workcyclePurposeLabel">
+          <i class="fas fa-layer-group me-2 text-primary"></i>
+          What is a Work Cycle?
+        </h5>
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"></button>
+      </div>
+
+      <!-- BODY -->
+      <div class="modal-body">
+
+        <!-- WHAT -->
+        <div class="mb-3">
+          <h6 class="fw-semibold mb-1">
+            <i class="fas fa-question-circle text-primary me-1"></i>
+            What it is
+          </h6>
+          <p class="mb-0">
+            A <strong>Work Cycle</strong> is a time-bound request used to formally
+            assign a task, report, or required output to users or teams.
+          </p>
+        </div>
+
+        <!-- WHY -->
+        <div class="mb-3">
+          <h6 class="fw-semibold mb-1">
+            <i class="fas fa-bullseye text-success me-1"></i>
+            Why it’s used
+          </h6>
+          <ul class="ps-3 mb-0">
+            <li>Ensure tasks have clear deadlines</li>
+            <li>Standardize submission and review</li>
+            <li>Track progress and accountability</li>
+          </ul>
+        </div>
+
+        <!-- HOW -->
+        <div class="mb-3">
+          <h6 class="fw-semibold mb-1">
+            <i class="fas fa-tasks text-warning me-1"></i>
+            What you can do with it
+          </h6>
+          <ul class="ps-3 mb-0">
+            <li>Assign work to <strong>users or organizational units</strong></li>
+            <li>Monitor status (Not Started → Working → Done)</li>
+            <li>Review submissions and request revisions</li>
+          </ul>
+        </div>
+
+        <!-- EXAMPLE -->
+        <div class="alert alert-light border mb-0">
+          <div class="d-flex gap-2">
+            <i class="fas fa-lightbulb text-warning mt-1"></i>
+            <small class="text-muted">
+              <strong>Example:</strong>
+              Monthly accomplishment reports, compliance documents,
+              performance summaries, or time-bound directives.
+            </small>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- FOOTER -->
+      <div class="modal-footer d-flex justify-content-between">
+        <small class="text-muted">
+          You can create a Work Cycle anytime.
+        </small>
+        <div>
+          <button class="btn btn-outline-secondary"
+                  data-bs-dismiss="modal">
+            Close
+          </button>
+          <button class="btn btn-success"
+                  data-bs-dismiss="modal"
+                  data-bs-toggle="modal"
+                  data-bs-target="#createWorkcycleModal">
+            <i class="fas fa-plus me-1"></i>
+            Create Work Cycle
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  if (!localStorage.getItem("seenWorkcyclePurpose")) {
+    const modal = new bootstrap.Modal(
+      document.getElementById("workcyclePurposeModal")
+    );
+    modal.show();
+    localStorage.setItem("seenWorkcyclePurpose", "1");
+  }
+});
+</script>

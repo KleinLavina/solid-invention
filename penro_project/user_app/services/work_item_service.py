@@ -1,7 +1,7 @@
 from django.utils import timezone
 from django.core.exceptions import ValidationError
 
-from accounts.models import WorkItem, WorkItemAttachment
+from accounts.models import WorkItemAttachment
 
 
 def update_work_item_status(work_item, new_status):
@@ -21,22 +21,29 @@ def update_work_item_status(work_item, new_status):
 def submit_work_item(work_item, files=None, message=None, user=None):
     """
     Submit completed work item.
+    Allows submission if attachments already exist.
     """
     if work_item.status == "done":
         raise ValidationError("This work item has already been submitted.")
 
-    if files is None or len(files) == 0:
+    # ✅ CHECK EXISTING ATTACHMENTS
+    has_existing_attachments = WorkItemAttachment.objects.filter(
+        work_item=work_item
+    ).exists()
+
+    if (not files or len(files) == 0) and not has_existing_attachments:
         raise ValidationError("At least one attachment is required.")
 
-    # Save attachments
-    for f in files:
-        WorkItemAttachment.objects.create(
-            work_item=work_item,
-            file=f,
-            uploaded_by=user
-        )
+    # ✅ SAVE NEW FILES IF PROVIDED
+    if files:
+        for f in files:
+            WorkItemAttachment.objects.create(
+                work_item=work_item,
+                file=f,
+                uploaded_by=user
+            )
 
-    # Save submission
+    # ✅ FINALIZE SUBMISSION
     work_item.status = "done"
     work_item.review_decision = "pending"
     work_item.submitted_at = timezone.now()
@@ -44,25 +51,34 @@ def submit_work_item(work_item, files=None, message=None, user=None):
     if message:
         work_item.message = message
 
-    work_item.save()
+    work_item.save(update_fields=[
+        "status",
+        "review_decision",
+        "submitted_at",
+        "message",
+    ])
 
-from accounts.models import WorkItemAttachment
 
-
-def add_attachment_to_work_item(work_item, files, user):
+def add_attachment_to_work_item(*, work_item, files, attachment_type, user):
     """
     Allow adding attachments even after submission.
+    Each attachment MUST have a type.
     """
+    if not attachment_type:
+        raise ValidationError("Attachment type is required.")
+
     if not files:
-        raise ValueError("No files provided.")
+        raise ValidationError("No files provided.")
 
     for f in files:
         WorkItemAttachment.objects.create(
             work_item=work_item,
             file=f,
+            attachment_type=attachment_type,
             uploaded_by=user
         )
-        
+
+
 def update_work_item_context(work_item, label=None, message=None):
     """
     Update contextual fields WITHOUT changing submission or status.

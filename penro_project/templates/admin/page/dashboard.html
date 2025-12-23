@@ -1,32 +1,127 @@
 {% extends "admin/layout/base.html" %}
 
 {% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
 
 {% block content %}
-<h3>Dashboard Overview</h3>
 
-<p>This is your dashboard content area.</p>
-
-<div class="row">
-    <div class="col-md-4">
-        <div class="card p-3 shadow-sm">
-            <h5>Total Employees</h5>
-            <p>120</p>
-        </div>
-    </div>
-
-    <div class="col-md-4">
-        <div class="card p-3 shadow-sm">
-            <h5>Pending Reports</h5>
-            <p>8</p>
-        </div>
-    </div>
-
-    <div class="col-md-4">
-        <div class="card p-3 shadow-sm">
-            <h5>Completed Tasks</h5>
-            <p>35</p>
-        </div>
-    </div>
+<!-- DASHBOARD HEADER -->
+<div class="mb-4">
+  <h4 class="fw-bold mb-1">
+    <i class="fas fa-th-large text-primary me-1"></i>
+    Dashboard
+  </h4>
+  <div class="text-muted small">
+    Electronic Document & Work Management Overview
+  </div>
 </div>
+
+<!-- QUICK ACTIONS -->
+<div class="row g-3 mb-4">
+
+  <div class="col-md-3">
+    <a href="{% url 'user_app:work-items' %}" class="text-decoration-none">
+      <div class="card h-100 shadow-sm dashboard-tile">
+        <div class="card-body">
+          <i class="fas fa-folder-open fa-2x text-primary mb-2"></i>
+          <h6 class="fw-semibold mb-1">My Work Items</h6>
+          <div class="small text-muted">
+            View and manage assigned work
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="col-md-3">
+    <a href="{% url 'user_app:discussion-list' %}" class="text-decoration-none">
+      <div class="card h-100 shadow-sm dashboard-tile">
+        <div class="card-body">
+          <i class="fas fa-comments fa-2x text-success mb-2"></i>
+          <h6 class="fw-semibold mb-1">Discussions</h6>
+          <div class="small text-muted">
+            Work-related messages
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="col-md-3">
+    <a href="{% url 'user_app:user-notifications' %}" class="text-decoration-none">
+      <div class="card h-100 shadow-sm dashboard-tile">
+        <div class="card-body">
+          <i class="fas fa-bell fa-2x text-warning mb-2"></i>
+          <h6 class="fw-semibold mb-1">Notifications</h6>
+          <div class="small text-muted">
+            System alerts & updates
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card h-100 shadow-sm dashboard-tile bg-light">
+      <div class="card-body">
+        <i class="fas fa-archive fa-2x text-secondary mb-2"></i>
+        <h6 class="fw-semibold mb-1">Archive</h6>
+        <div class="small text-muted">
+          Completed & inactive items
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- INFORMATION PANELS -->
+<div class="row g-4">
+
+  <!-- SYSTEM OVERVIEW -->
+  <div class="col-lg-6">
+    <div class="card shadow-sm h-100">
+      <div class="card-header fw-semibold">
+        <i class="fas fa-info-circle me-1"></i>
+        System Overview
+      </div>
+      <div class="card-body small text-muted">
+        This system is designed to manage work items, supporting documents,
+        discussions, and notifications in a centralized electronic document
+        management environment.
+      </div>
+    </div>
+  </div>
+
+  <!-- USER GUIDE -->
+  <div class="col-lg-6">
+    <div class="card shadow-sm h-100">
+      <div class="card-header fw-semibold">
+        <i class="fas fa-book me-1"></i>
+        Quick Guide
+      </div>
+      <div class="card-body small">
+        <ul class="mb-0 ps-3 text-muted">
+          <li>Open a work item to upload documents</li>
+          <li>Use discussions for clarifications</li>
+          <li>Track submission and review status</li>
+          <li>Check notifications regularly</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- STYLES -->
+<style>
+.dashboard-tile{
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.dashboard-tile:hover{
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(0,0,0,.08);
+}
+</style>
+
 {% endblock %}

@@ -3,19 +3,29 @@ from accounts.models import User
 from accounts.forms import UserCreateForm, UserUpdateForm
 
 
-def users(request):
-    users_qs = User.objects.all().order_by("username")
+from django.shortcuts import render
+from accounts.models import User, Team
+from django.db.models import Prefetch
 
-    # ✅ define role choices HERE (safe)
-    role_choices = User._meta.get_field("login_role").choices
+
+def users(request):
+    divisions = (
+        Team.objects
+        .filter(team_type=Team.TeamType.DIVISION)
+        .prefetch_related(
+            "children__children__children",
+            "children__children__memberships__user",
+            "children__memberships__user",
+            "memberships__user",
+        )
+        .order_by("name")
+    )
 
     return render(
         request,
         "admin/page/users.html",
         {
-            "users": users_qs,
-            "create_form": UserCreateForm(),
-            "role_choices": role_choices,  # 👈 pass to template
+            "divisions": divisions,
         }
     )
 

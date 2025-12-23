@@ -8,6 +8,9 @@ from admin_app.views import (
     review_work_item, admin_work_item_discussion, admin_work_item_threads,
 )
 from .views.notification_views import admin_notifications
+from .views.document_views import admin_documents
+from .views.file_manager_views import admin_file_manager, create_folder, move_attachment
+
 
 app_name = "admin_app"
 
@@ -47,7 +50,30 @@ urlpatterns = [
         review_work_item,
         name="work-item-review"
     ),
- 
+path(
+    "documents/",
+    admin_documents,
+    name="documents"
+),
+
+path(
+    "documents/files/",
+    admin_file_manager,
+    name="file-manager"
+),
+
+path(
+    "documents/files/<int:folder_id>/",
+    admin_file_manager,
+    name="file-manager-folder"
+),
+path("documents/files/create-folder/", create_folder, name="create-folder"),
+path(
+    "documents/files/move/",
+    move_attachment,
+    name="move-attachment"
+),
+
 
 
     path("teams/", team_views, name="teams"),

@@ -1,0 +1,119 @@
+{% extends "admin/layout/base.html" %}
+
+{% block title %}Documents{% endblock %}
+{% block page_title %}Documents{% endblock %}
+
+{% block content %}
+
+<!-- PAGE HEADER -->
+<div class="mb-4">
+  <h4 class="fw-bold mb-1">
+    <i class="fas fa-folder-open text-primary me-1"></i>
+    Documents Center
+  </h4>
+  <div class="text-muted small">
+    Centralized access to all uploaded files and records
+  </div>
+</div>
+
+<!-- DOCUMENT ACTIONS -->
+<div class="row g-3 mb-4">
+
+  <!-- ALL FILES -->
+  <div class="col-md-3">
+    <a href="{% url 'admin_app:file-manager' %}" class="text-decoration-none">
+      <div class="card h-100 shadow-sm dashboard-tile">
+        <div class="card-body">
+          <i class="fas fa-file-alt fa-2x text-primary mb-2"></i>
+          <h6 class="fw-semibold mb-1">All Documents</h6>
+          <div class="small text-muted">
+            {{ total_files }} files uploaded
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <!-- CURRENT YEAR -->
+  <div class="col-md-3">
+    <a href="{% url 'admin_app:file-manager' %}?year={{ now|date:'Y' }}" class="text-decoration-none">
+      <div class="card h-100 shadow-sm dashboard-tile">
+        <div class="card-body">
+          <i class="fas fa-calendar-check fa-2x text-success mb-2"></i>
+          <h6 class="fw-semibold mb-1">This Year</h6>
+          <div class="small text-muted">
+            {{ files_this_year }} files ({{ now|date:"Y" }})
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <!-- ARCHIVE -->
+  <div class="col-md-3">
+    <div class="card h-100 shadow-sm dashboard-tile bg-light">
+      <div class="card-body">
+        <i class="fas fa-archive fa-2x text-secondary mb-2"></i>
+        <h6 class="fw-semibold mb-1">Archives</h6>
+        <div class="small text-muted">
+          Browse documents by year
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ANALYTICS -->
+  <div class="col-md-3">
+    <div class="card h-100 shadow-sm dashboard-tile bg-light">
+      <div class="card-body">
+        <i class="fas fa-chart-bar fa-2x text-warning mb-2"></i>
+        <h6 class="fw-semibold mb-1">Document Analytics</h6>
+        <div class="small text-muted">
+          Usage & submission insights
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- YEAR ARCHIVE -->
+<div class="row g-4">
+
+  <div class="col-lg-12">
+    <div class="card shadow-sm">
+      <div class="card-header fw-semibold">
+        <i class="fas fa-history me-1"></i>
+        Document Archive
+      </div>
+      <div class="card-body">
+        <div class="d-flex flex-wrap gap-2">
+          {% for y in years %}
+            <a
+              href="{% url 'admin_app:file-manager' %}?year={{ y }}"
+              class="btn btn-sm btn-outline-secondary"
+            >
+              {{ y }}
+            </a>
+          {% empty %}
+            <span class="text-muted small">No documents yet</span>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- STYLES -->
+<style>
+.dashboard-tile{
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.dashboard-tile:hover{
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(0,0,0,.08);
+}
+</style>
+
+{% endblock %}

@@ -14,11 +14,63 @@
     </a>
 </div>
 
-<div class="accordion" id="orgAccordion">
-    {% for division in divisions %}
-        {% include "admin/page/partials/org_node.html" with node=division level=0 %}
-    {% endfor %}
+<div class="accordion-item border-0 ms-{{ level|add:1 }}">
+
+  <!-- HEADER -->
+  <h2 class="accordion-header" id="heading{{ node.id }}">
+    <button class="accordion-button {% if level > 0 %}collapsed{% endif %}"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#collapse{{ node.id }}">
+
+      <!-- Visual hierarchy marker -->
+      <span class="me-2 text-muted">└─</span>
+
+      <strong>{{ node.name }}</strong>
+
+      <span class="badge bg-light text-dark ms-2">
+        {{ node.get_team_type_display }}
+      </span>
+    </button>
+  </h2>
+
+  <!-- BODY -->
+  <div id="collapse{{ node.id }}"
+       class="accordion-collapse collapse {% if level == 0 %}show{% endif %}"
+       data-bs-parent="#orgAccordion">
+
+    <div class="accordion-body py-2 ps-4">
+
+      <!-- USERS (UNIT ONLY) -->
+      {% if node.team_type == "unit" %}
+        <div class="mb-3">
+          <h6 class="text-muted small mb-2">
+            <i class="fas fa-users me-1"></i> Unit Members
+          </h6>
+
+          <ul class="list-group list-group-sm">
+            {% for m in node.memberships.all %}
+              <li class="list-group-item d-flex justify-content-between">
+                {{ m.user.get_full_name|default:m.user.username }}
+                <span class="badge bg-secondary">
+                  {{ m.get_role_display }}
+                </span>
+              </li>
+            {% empty %}
+              <li class="list-group-item text-muted small">
+                No members assigned
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+
+
+    </div>
+  </div>
+
 </div>
+
 
 {% include "admin/page/modals/create_user_modal.html" %}
 {% include "admin/page/modals/edit_user_modal.html" %}

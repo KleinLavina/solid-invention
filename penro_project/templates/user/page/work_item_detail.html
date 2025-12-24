@@ -537,6 +537,105 @@ textarea.form-input {
   font-weight: 600;
   text-transform: uppercase;
 }
+/* ===============================
+   USER ACTION BUTTONS (WHITE UI)
+================================ */
+.ux-btn{
+  background:#ffffff;
+  border:1px solid #dbe3f0;
+  border-radius:10px;
+  padding:6px 14px;
+  font-weight:600;
+  font-size:.8rem;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  transition:all .2s ease;
+  box-shadow:0 1px 3px rgba(15,23,42,.04);
+}
+
+/* PRIMARY (Discussion) */
+.ux-btn-primary{
+  color:#1e3a8a; /* dark blue */
+}
+
+.ux-btn-primary i{
+  color:#1e3a8a;
+}
+
+.ux-btn-primary:hover{
+  background:#f0f5ff;
+  border-color:#93c5fd;
+  color:#1d4ed8;
+  transform:translateY(-1px);
+  box-shadow:0 6px 14px rgba(29,78,216,.15);
+}
+
+/* SECONDARY (Home) */
+.ux-btn-secondary{
+  color:#334155;
+}
+
+.ux-btn-secondary i{
+  color:#475569;
+}
+
+.ux-btn-secondary:hover{
+  background:#f8fafc;
+  border-color:#cbd5e1;
+  transform:translateY(-1px);
+  box-shadow:0 4px 10px rgba(15,23,42,.1);
+}
+
+/* Focus (keyboard users) */
+.ux-btn:focus-visible{
+  outline:2px solid #93c5fd;
+  outline-offset:2px;
+}
+/* ===============================
+   UNDO SUBMISSION BUTTON
+================================ */
+.btn-undo{
+  background:#dc2626;          /* red-600 */
+  color:#ffffff;
+  border:none;
+  border-radius:10px;
+  padding:6px 14px;
+  font-size:.75rem;
+  font-weight:700;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  cursor:pointer;
+  transition:
+    transform .15s ease,
+    box-shadow .15s ease,
+    background .15s ease;
+  box-shadow:0 4px 10px rgba(220,38,38,.35);
+}
+
+.btn-undo i{
+  font-size:.75rem;
+}
+
+/* Hover effect */
+.btn-undo:hover{
+  background:#b91c1c;          /* red-700 */
+  transform:scale(1.06);
+  box-shadow:0 8px 18px rgba(185,28,28,.45);
+}
+
+/* Active (click) */
+.btn-undo:active{
+  transform:scale(0.97);
+}
+
+/* Focus (keyboard accessibility) */
+.btn-undo:focus-visible{
+  outline:2px solid #fecaca;
+  outline-offset:2px;
+}
+
 </style>
 
 <div class="work-item-page">
@@ -548,18 +647,18 @@ textarea.form-input {
           <i class="fas fa-layer-group"></i>
           {{ work_item.workcycle.title }}
         </h4>
-        <div class="header-meta">
-          <i class="far fa-calendar-alt"></i>
-          Due {{ work_item.workcycle.due_at|date:"M d, Y · H:i" }}
-        </div>
+       <div class="header-meta">
+  <i class="far fa-calendar-alt"></i>
+  Due {{ work_item.workcycle.due_at|date:"l, F j, Y · g:i A" }}
+</div>
+
         {% if work_item.workcycle.description %}
         <div class="header-description">{{ work_item.workcycle.description }}</div>
         {% endif %}
       </div>
              <div class="d-flex gap-2">
-
                 <a href="#"
-                  class="btn btn-sm btn-outline-primary"
+                  class="btn btn-sm ux-btn ux-btn-primary"
                   data-qxdlg-trigger
                   data-qxdlg-url="{% url 'user_app:work-item-discussion' work_item.id %}"
                   data-qxdlg-title="{{ work_item.workcycle.title }}"
@@ -568,11 +667,11 @@ textarea.form-input {
                 </a>
 
                 <a href="{% url 'user_app:work-items' %}"
-                  class="btn btn-sm btn-outline-secondary">
-                  <i class="fas fa-arrow-left me-1"></i> Back
+                  class="btn btn-sm ux-btn ux-btn-secondary">
+                  <i class="fas fa-home me-1"></i> Home
                 </a>
+            </div>
 
-              </div>
 
 
     </div>
@@ -617,10 +716,24 @@ textarea.form-input {
             </form>
           </div>
           {% else %}
-          <div class="completed-alert">
-            <i class="fas fa-check-circle"></i> Completed
-          </div>
-          {% endif %}
+<div class="completed-alert d-flex justify-content-between align-items-center">
+  <div>
+    <i class="fas fa-check-circle"></i> Completed
+  </div>
+
+  {% if work_item.review_decision == "pending" %}
+  <form method="post">
+  {% csrf_token %}
+  <input type="hidden" name="action" value="undo_submit">
+  <button type="submit" class="btn-undo">
+    <i class="fas fa-undo"></i> Undo Submission
+  </button>
+</form>
+
+  {% endif %}
+</div>
+{% endif %}
+
         </div>
 
         <!-- Meta Info -->

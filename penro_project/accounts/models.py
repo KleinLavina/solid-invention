@@ -423,28 +423,57 @@ class WorkItemAttachment(models.Model):
     # ============================
     def clean(self):
         if not self.folder:
-            return
+            return  # Allow null folder (unorganized files)
 
-        # Folder must belong to same workcycle
-        if (
-            self.folder.workcycle
-            and self.folder.workcycle != self.work_item.workcycle
-        ):
+        # Files CANNOT be placed in structural/organizational folders
+        invalid_folder_types = [
+            DocumentFolder.FolderType.ROOT,
+            DocumentFolder.FolderType.YEAR,
+            DocumentFolder.FolderType.CATEGORY,
+        ]
+
+        if self.folder.folder_type in invalid_folder_types:
+            folder_label = self.folder.get_folder_type_display()
             raise ValidationError(
-                "Attachment folder does not belong to this Work Cycle."
+                f"Files cannot be placed in {folder_label} folders. "
+                f"Please move them to a Workcycle, organizational unit, or attachment folder."
             )
 
-        # Enforce attachment folder type
-        if self.folder.folder_type != DocumentFolder.FolderType.ATTACHMENT:
+        # Files CAN be placed in these folder types:
+        # - WORKCYCLE
+        # - DIVISION, SECTION, SERVICE, UNIT (org structure)
+        # - ATTACHMENT (default file containers)
+        
+        valid_folder_types = [
+            DocumentFolder.FolderType.WORKCYCLE,
+            DocumentFolder.FolderType.DIVISION,
+            DocumentFolder.FolderType.SECTION,
+            DocumentFolder.FolderType.SERVICE,
+            DocumentFolder.FolderType.UNIT,
+            DocumentFolder.FolderType.ATTACHMENT,
+        ]
+
+        if self.folder.folder_type not in valid_folder_types:
             raise ValidationError(
-                "Attachments must be stored in an attachment folder."
+                f"Files cannot be placed in {self.folder.get_folder_type_display()} folders."
             )
+
+        # Workcycle integrity check
+        # If the folder belongs to a specific workcycle, 
+        # the file's work_item must also belong to that workcycle
+        if self.folder.workcycle:
+            if self.folder.workcycle != self.work_item.workcycle:
+                raise ValidationError(
+                    f"This folder belongs to '{self.folder.workcycle.title}' but the file "
+                    f"belongs to work item in '{self.work_item.workcycle.title}'. "
+                    f"Files can only be placed in folders from the same work cycle."
+                )
 
     # ============================
     # SAVE HOOK
     # ============================
     def save(self, *args, **kwargs):
-        # Auto-resolve folder if missing
+        # Auto-resolve folder if missing (on initial upload)
         if not self.folder:
             if not self.uploaded_by:
                 raise PermissionDenied(
@@ -464,7 +493,7 @@ class WorkItemAttachment(models.Model):
 
     def __str__(self):
         return f"{self.get_attachment_type_display()} — {self.work_item}"
-
+    
 class WorkItemMessage(models.Model):
     work_item = models.ForeignKey(
         WorkItem,

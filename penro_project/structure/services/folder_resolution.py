@@ -1,6 +1,4 @@
-from django.core.exceptions import PermissionDenied, ValidationError
-from django.utils import timezone
-
+from django.core.exceptions import PermissionDenied
 from accounts.models import TeamMembership
 from structure.models import DocumentFolder
 
@@ -13,9 +11,6 @@ def get_team_chain(team):
     """
     Walks up the Team hierarchy and returns the chain
     from Division → ... → Unit.
-
-    Example return order:
-        [division, section, service?, unit]
     """
     chain = []
     current = team
@@ -34,10 +29,6 @@ def get_team_chain(team):
 def assert_can_upload(*, work_item, actor):
     """
     Enforces who is allowed to upload attachments.
-
-    Rules:
-    - Admins can upload anywhere
-    - Users can ONLY upload to their own WorkItem
     """
 
     if actor.login_role == "admin":
@@ -60,6 +51,7 @@ def get_or_create_folder(
     parent,
     workcycle=None,
     created_by=None,
+    system=True,
 ):
     folder, _ = DocumentFolder.objects.get_or_create(
         parent=parent,
@@ -68,31 +60,23 @@ def get_or_create_folder(
             "folder_type": folder_type,
             "workcycle": workcycle,
             "created_by": created_by,
-            "is_system_generated": True,
+            "is_system_generated": system,
         }
     )
     return folder
 
 
 # ============================================================
-# MAIN RESOLUTION SERVICE
+# MAIN RESOLUTION SERVICE (OPTION A)
 # ============================================================
 
 def resolve_attachment_folder(*, work_item, attachment_type, actor):
     """
-    Resolves (and creates if missing) the correct attachment folder.
+    Resolves the DEFAULT attachment folder for uploads.
 
-    Folder structure enforced:
-
-    ROOT
-      └── YEAR
-           └── CATEGORY (MOV)
-                └── WORKCYCLE
-                     └── DIVISION
-                          └── SECTION
-                               └── SERVICE? (optional)
-                                    └── UNIT
-                                         └── ATTACHMENT
+    NOTE:
+    - This does NOT lock files to a single location
+    - Drag & drop may move files later
     """
 
     # ---------------------------
@@ -101,18 +85,16 @@ def resolve_attachment_folder(*, work_item, attachment_type, actor):
     assert_can_upload(work_item=work_item, actor=actor)
 
     # ---------------------------
-    # 2. Resolve actor team
+    # 2. Resolve actor team (optional context)
     # ---------------------------
+    team_chain = []
     try:
         membership = TeamMembership.objects.select_related("team").get(
             user=actor
         )
+        team_chain = get_team_chain(membership.team)
     except TeamMembership.DoesNotExist:
-        raise PermissionDenied(
-            "You must belong to a team to upload attachments."
-        )
-
-    team_chain = get_team_chain(membership.team)
+        pass  # uploads still allowed for admins / system
 
     # ---------------------------
     # 3. ROOT folder
@@ -126,27 +108,23 @@ def resolve_attachment_folder(*, work_item, attachment_type, actor):
     # ---------------------------
     # 4. YEAR folder
     # ---------------------------
-    year_name = str(work_item.workcycle.due_at.year)
-
     year_folder = get_or_create_folder(
-        name=year_name,
+        name=str(work_item.workcycle.due_at.year),
         folder_type=DocumentFolder.FolderType.YEAR,
         parent=root,
     )
 
     # ---------------------------
-    # 5. CATEGORY (MOV)
+    # 5. CATEGORY folder
     # ---------------------------
-    category_name = attachment_type.upper()
-
     category_folder = get_or_create_folder(
-        name=category_name,
+        name=attachment_type.upper(),
         folder_type=DocumentFolder.FolderType.CATEGORY,
         parent=year_folder,
     )
 
     # ---------------------------
-    # 6. WORKCYCLE
+    # 6. WORKCYCLE folder
     # ---------------------------
     wc_folder = get_or_create_folder(
         name=work_item.workcycle.title,
@@ -156,21 +134,18 @@ def resolve_attachment_folder(*, work_item, attachment_type, actor):
     )
 
     # ---------------------------
-    # 7. ORG STRUCTURE FOLDERS
+    # 7. OPTIONAL ORG STRUCTURE (system-only)
     # ---------------------------
     parent_folder = wc_folder
-
     for team in team_chain:
-        folder_type = team.team_type
-
         parent_folder = get_or_create_folder(
             name=team.name,
-            folder_type=folder_type,
+            folder_type=team.team_type,
             parent=parent_folder,
         )
 
     # ---------------------------
-    # 8. ATTACHMENT FOLDER
+    # 8. DEFAULT ATTACHMENT FOLDER
     # ---------------------------
     attachment_folder = get_or_create_folder(
         name="Attachments",

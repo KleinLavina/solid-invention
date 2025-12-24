@@ -34,6 +34,44 @@ def user_work_items(request):
         {"work_items": work_items}
     )
 
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib import messages
+
+from accounts.models import WorkItemAttachment
+
+
+from django.shortcuts import redirect
+from django.urls import reverse
+
+@login_required
+def delete_work_item_attachment(request, attachment_id):
+    attachment = get_object_or_404(
+        WorkItemAttachment.objects.select_related("work_item"),
+        id=attachment_id,
+        work_item__owner=request.user
+    )
+
+    work_item = attachment.work_item
+    attachment_type = attachment.attachment_type  # 👈 capture BEFORE delete
+
+    # 🔒 Safety rules
+    if work_item.review_decision == "approved":
+        messages.error(request, "Approved work items cannot be modified.")
+        return redirect(
+            f"{reverse('user_app:work-item-attachments', args=[work_item.id])}?type={attachment_type}"
+        )
+
+    if request.method == "POST":
+        attachment.file.delete(save=False)
+        attachment.delete()
+        messages.success(request, "Attachment deleted.")
+
+    # ✅ Redirect back to attachments page with same type
+    return redirect(
+        f"{reverse('user_app:work-item-attachments', args=[work_item.id])}?type={attachment_type}"
+    )
+
 
 # ============================================================
 # WORK ITEM DETAIL
@@ -73,6 +111,15 @@ def user_work_item_detail(request, item_id):
                     user=request.user
                 )
                 messages.success(request, "Work item submitted successfully.")
+
+            elif action == "undo_submit":
+                if work_item.status == "done" and work_item.review_decision == "pending":
+                    work_item.status = "working_on_it"
+                    work_item.save(update_fields=["status"])
+                    messages.info(request, "Submission reverted. You can edit again.")
+                else:
+                    messages.error(request, "Cannot undo after review.")
+
 
             return redirect(
                 "user_app:work-item-detail",

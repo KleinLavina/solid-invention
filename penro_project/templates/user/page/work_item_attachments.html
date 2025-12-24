@@ -456,15 +456,31 @@
 
           <ul class="file-list">
             {% for f in group.list %}
-              <li class="file-item">
+              <li class="file-item d-flex justify-content-between align-items-center">
                 <a href="{{ f.file.url }}" download class="file-link">
                   <i class="far fa-file"></i>
                   <span>{{ f.file.name|slice:"-35:" }}</span>
                 </a>
-                <span class="file-date">
-                  {{ f.uploaded_at|date:"M d, Y · h:i A" }}
-                </span>
+
+                <div class="d-flex align-items-center gap-2">
+                  <span class="file-date">
+                    {{ f.uploaded_at|date:"M d, Y · h:i A" }}
+                  </span>
+
+                  {% if work_item.review_decision != "approved" %}
+                  <form method="post"
+                        action="{% url 'user_app:delete-attachment' f.id %}"
+                        onsubmit="return confirm('Delete this file?');">
+                    {% csrf_token %}
+                    <button type="submit"
+                            class="btn btn-sm btn-outline-danger">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </form>
+                  {% endif %}
+                </div>
               </li>
+
             {% endfor %}
           </ul>
         </div>
@@ -534,11 +550,19 @@ document.addEventListener("DOMContentLoaded", () => {
   const dropArea = document.getElementById("dropArea");
   const input = document.getElementById("attachmentInput");
   const fileList = document.getElementById("fileList");
+  const fileListContainer = document.getElementById("fileListContainer");
+  const fileCount = document.getElementById("fileCount");
   const chooseBtn = document.getElementById("chooseFilesBtn");
+  const uploadBtn = document.querySelector(".upload-btn");
+
   const dataTransfer = new DataTransfer();
 
+  /* ======================
+     CLICK & DRAG EVENTS
+  ====================== */
+
   dropArea.addEventListener("click", () => input.click());
-  
+
   chooseBtn.addEventListener("click", e => {
     e.stopPropagation();
     input.click();
@@ -549,9 +573,9 @@ document.addEventListener("DOMContentLoaded", () => {
     dropArea.classList.add("dragover");
   });
 
-  dropArea.addEventListener("dragleave", () =>
-    dropArea.classList.remove("dragover")
-  );
+  dropArea.addEventListener("dragleave", () => {
+    dropArea.classList.remove("dragover");
+  });
 
   dropArea.addEventListener("drop", e => {
     e.preventDefault();
@@ -559,47 +583,85 @@ document.addEventListener("DOMContentLoaded", () => {
     addFiles(e.dataTransfer.files);
   });
 
-  input.addEventListener("change", () => addFiles(input.files));
+  input.addEventListener("change", () => {
+    addFiles(input.files);
+  });
 
-  function addFiles(files){
+  /* ======================
+     FILE HANDLING
+  ====================== */
+
+  function addFiles(files) {
     for (const file of files) {
-      if (![...dataTransfer.files].some(f => f.name === file.name && f.size === file.size)) {
+      const exists = [...dataTransfer.files].some(
+        f => f.name === file.name && f.size === file.size
+      );
+      if (!exists) {
         dataTransfer.items.add(file);
       }
     }
+
     input.files = dataTransfer.files;
     renderFiles();
   }
 
-  function renderFiles(){
+  function renderFiles() {
     fileList.innerHTML = "";
+    const count = dataTransfer.files.length;
+
+    // Update counter
+    fileCount.textContent = count;
+
+    // Toggle UI
+    if (count === 0) {
+      fileListContainer.style.display = "none";
+      uploadBtn.disabled = true;
+      return;
+    }
+
+    fileListContainer.style.display = "block";
+    uploadBtn.disabled = false;
+
     [...dataTransfer.files].forEach((file, index) => {
       const li = document.createElement("li");
       li.className = "selected-file-item";
+
       li.innerHTML = `
         <span class="selected-file-info">
           <i class="far fa-file"></i>
           <span>${file.name}</span>
-          <span class="file-size">(${(file.size / 1024 / 1024).toFixed(2)} MB)</span>
+          <span class="file-size">
+            (${(file.size / 1024 / 1024).toFixed(2)} MB)
+          </span>
         </span>
         <button type="button"
                 class="remove-file-btn"
-                onclick="removeFile(${index})"
                 title="Remove file">
           <i class="fas fa-times"></i>
         </button>
       `;
+
+      li.querySelector(".remove-file-btn")
+        .addEventListener("click", () => removeFile(index));
+
       fileList.appendChild(li);
     });
   }
 
-  window.removeFile = function(index){
+  function removeFile(index) {
     const files = [...dataTransfer.files];
     dataTransfer.items.clear();
-    files.forEach((f, i) => i !== index && dataTransfer.items.add(f));
+
+    files.forEach((file, i) => {
+      if (i !== index) dataTransfer.items.add(file);
+    });
+
     input.files = dataTransfer.files;
     renderFiles();
-  };
+  }
+
+  // Init state
+  renderFiles();
 });
 </script>
 

@@ -3,7 +3,7 @@ from .views.dashboard_views import (
     dashboard
 )
 from .views.work_item_views import (
-    user_work_items, user_work_item_detail, user_work_item_comments, user_work_item_attachments
+    user_work_items, user_work_item_detail, user_work_item_comments, user_work_item_attachments, delete_work_item_attachment
 )
 from .views.user_work_item_threads import (
     user_work_item_threads
@@ -27,6 +27,12 @@ urlpatterns = [
         user_work_item_attachments,
         name="work-item-attachments"
     ),
+    path(
+    "attachments/<int:attachment_id>/delete/",
+    delete_work_item_attachment,
+    name="delete-attachment"
+),
+
     # user_app/urls.py
     path("discussions/", user_work_item_threads, name="discussion-list"),
 

@@ -9,7 +9,8 @@ from admin_app.views import (
 )
 from .views.notification_views import admin_notifications
 from .views.document_views import admin_documents
-from .views.file_manager_views import admin_file_manager, create_folder, move_attachment
+from .views.file_manager_views import admin_file_manager, create_folder, move_attachment, move_folder, rename_folder, delete_file, delete_folder, download_file, upload_files
+from .views.all_files_views import all_files_uploaded
 
 
 app_name = "admin_app"
@@ -73,7 +74,26 @@ path(
     move_attachment,
     name="move-attachment"
 ),
+    path(
+    "documents/files/move-folder/",
+    move_folder,
+    name="move-folder"
+),
+    path(
+        "documents/all-files/",
+        all_files_uploaded,
+        name="all-files-uploaded"
+    ),
+# admin_app/urls.py - ADD THESE PATHS
 
+path("documents/files/create-folder/", create_folder, name="create-folder"),
+path("documents/files/rename-folder/", rename_folder, name="rename-folder"),
+path("documents/files/delete-folder/", delete_folder, name="delete-folder"),
+path("documents/files/delete-file/", delete_file, name="delete-file"),
+path("documents/files/download/<int:attachment_id>/", download_file, name="download-file"),
+path("documents/files/upload/", upload_files, name="upload-files"),
+path("documents/files/move/", move_attachment, name="move-attachment"),
+path("documents/files/move-folder/", move_folder, name="move-folder"),
 
 
     path("teams/", team_views, name="teams"),

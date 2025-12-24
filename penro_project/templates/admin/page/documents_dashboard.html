@@ -25,7 +25,19 @@
       <div class="card h-100 shadow-sm dashboard-tile">
         <div class="card-body">
           <i class="fas fa-file-alt fa-2x text-primary mb-2"></i>
-          <h6 class="fw-semibold mb-1">All Documents</h6>
+          <h6 class="fw-semibold mb-1">File Manager</h6>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <!-- CURRENT YEAR -->
+  <div class="col-md-3">
+    <a href="{% url 'admin_app:all-files-uploaded' %}" class="text-decoration-none">
+      <div class="card h-100 shadow-sm dashboard-tile">
+        <div class="card-body">
+          <i class="fas fa-calendar-check fa-2x text-success mb-2"></i>
+          <h6 class="fw-semibold mb-1">All Files</h6>
           <div class="small text-muted">
             {{ total_files }} files uploaded
           </div>
@@ -34,33 +46,7 @@
     </a>
   </div>
 
-  <!-- CURRENT YEAR -->
-  <div class="col-md-3">
-    <a href="{% url 'admin_app:file-manager' %}?year={{ now|date:'Y' }}" class="text-decoration-none">
-      <div class="card h-100 shadow-sm dashboard-tile">
-        <div class="card-body">
-          <i class="fas fa-calendar-check fa-2x text-success mb-2"></i>
-          <h6 class="fw-semibold mb-1">This Year</h6>
-          <div class="small text-muted">
-            {{ files_this_year }} files ({{ now|date:"Y" }})
-          </div>
-        </div>
-      </div>
-    </a>
-  </div>
 
-  <!-- ARCHIVE -->
-  <div class="col-md-3">
-    <div class="card h-100 shadow-sm dashboard-tile bg-light">
-      <div class="card-body">
-        <i class="fas fa-archive fa-2x text-secondary mb-2"></i>
-        <h6 class="fw-semibold mb-1">Archives</h6>
-        <div class="small text-muted">
-          Browse documents by year
-        </div>
-      </div>
-    </div>
-  </div>
 
   <!-- ANALYTICS -->
   <div class="col-md-3">
@@ -77,33 +63,6 @@
 
 </div>
 
-<!-- YEAR ARCHIVE -->
-<div class="row g-4">
-
-  <div class="col-lg-12">
-    <div class="card shadow-sm">
-      <div class="card-header fw-semibold">
-        <i class="fas fa-history me-1"></i>
-        Document Archive
-      </div>
-      <div class="card-body">
-        <div class="d-flex flex-wrap gap-2">
-          {% for y in years %}
-            <a
-              href="{% url 'admin_app:file-manager' %}?year={{ y }}"
-              class="btn btn-sm btn-outline-secondary"
-            >
-              {{ y }}
-            </a>
-          {% empty %}
-            <span class="text-muted small">No documents yet</span>
-          {% endfor %}
-        </div>
-      </div>
-    </div>
-  </div>
-
-</div>
 
 <!-- STYLES -->
 <style>

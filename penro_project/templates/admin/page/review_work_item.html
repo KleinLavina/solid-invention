@@ -169,17 +169,26 @@
     </div>
   </div>
 
-  <div class="d-flex gap-2">
-    <a href="{% url 'admin_app:work-item-discussion' work_item.id %}"
-       class="btn btn-sm btn-outline-primary">
-      <i class="fas fa-comment-dots me-1"></i> Discussion
-    </a>
+      <div class="d-flex gap-2">
 
-    <a href="{% url 'admin_app:done-workers-by-workcycle' work_item.workcycle.id %}"
-       class="btn btn-sm btn-outline-secondary">
-      <i class="fas fa-arrow-left me-1"></i> Back
-    </a>
-  </div>
+          <!-- OPEN DISCUSSION MODAL -->
+          <a href="#"
+   class="btn btn-sm btn-outline-primary"
+   data-qxdlg-trigger
+   data-qxdlg-url="{% url 'admin_app:work-item-discussion' work_item.id %}"
+   data-qxdlg-title="{{ work_item.workcycle.title }}"
+   data-qxdlg-subtitle="Assigned to: {{ work_item.owner.get_full_name|default:work_item.owner.username }}">
+  <i class="fas fa-comments me-1"></i> Discussion
+</a>
+
+          <!-- BACK BUTTON -->
+          <a href="{% url 'admin_app:done-workers-by-workcycle' work_item.workcycle.id %}"
+            class="btn btn-sm btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i> Back
+          </a>
+
+      </div>
+
 </div>
 
 <div class="review-layout">
@@ -272,5 +281,6 @@
   </div>
 
 </div>
+{% include "admin/page/modals/message_ui_modal.html" %}
 
 {% endblock %}

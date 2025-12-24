@@ -45,8 +45,17 @@
           <div class="list-group list-group-flush">
 
             {% for item in group.list %}
-            <a href="{% url 'admin_app:work-item-discussion' item.id %}"
-               class="list-group-item list-group-item-action">
+           <a href="#"
+              class="list-group-item list-group-item-action"
+              data-qxdlg-trigger
+              data-qxdlg-url="{% url 'admin_app:work-item-discussion' item.id %}"
+              data-qxdlg-title="{{ item.workcycle.title }}"
+              data-qxdlg-subtitle="Assigned to: {{ item.owner.get_full_name|default:item.owner.username }}">
+
+
+
+
+
 
               <div class="d-flex justify-content-between align-items-start">
 
@@ -96,5 +105,6 @@
   {% endif %}
 
 </div>
+{% include "admin/page/modals/message_ui_modal.html" %}
 
 {% endblock %}

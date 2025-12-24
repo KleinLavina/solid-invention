@@ -13,8 +13,12 @@
     <div class="list-group">
 
       {% for item in work_items %}
-      <a href="{% url 'user_app:work-item-comments' item.id %}"
-         class="list-group-item list-group-item-action">
+      <a href="#"
+              class="list-group-item list-group-item-action"
+              data-qxdlg-trigger
+              data-qxdlg-url="{% url 'user_app:work-item-discussion' item.id %}"
+              data-qxdlg-title="{{ item.workcycle.title }}"
+              data-qxdlg-subtitle="Assigned by: {{ item.workcycle.created_by.get_full_name|default:item.workcycle.created_by.username }}">
 
         <div class="d-flex justify-content-between">
           <div>
@@ -49,5 +53,5 @@
   {% endif %}
 
 </div>
-
+{% include "user/page/modals/message_ui_modal.html" %}
 {% endblock %}

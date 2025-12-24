@@ -9,7 +9,7 @@ from .views.user_work_item_threads import (
     user_work_item_threads
 )
 from .views.notification_views import user_notifications
-
+from .views.message_views import ( user_work_item_discussion ) 
 app_name = "user_app"
 
 
@@ -32,9 +32,9 @@ urlpatterns = [
 
     path("notifications/", user_notifications, name="user-notifications"),
 
-    path(
+
+ path(
         "work-items/<int:item_id>/discussion/",
-        user_work_item_comments,
-        name="work-item-comments"
-    ),
+        user_work_item_discussion,
+        name="work-item-discussion"),
 ]

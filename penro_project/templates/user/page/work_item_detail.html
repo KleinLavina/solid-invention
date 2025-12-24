@@ -556,14 +556,25 @@ textarea.form-input {
         <div class="header-description">{{ work_item.workcycle.description }}</div>
         {% endif %}
       </div>
-      <div class="d-flex gap-2">
-        <a href="{% url 'user_app:work-item-comments' work_item.id %}" class="btn-action">
-          <i class="fas fa-comment-dots"></i> Discussion
-        </a>
-        <a href="{% url 'user_app:work-items' %}" class="btn-action">
-          <i class="fas fa-arrow-left"></i> Back
-        </a>
-      </div>
+             <div class="d-flex gap-2">
+
+                <a href="#"
+                  class="btn btn-sm btn-outline-primary"
+                  data-qxdlg-trigger
+                  data-qxdlg-url="{% url 'user_app:work-item-discussion' work_item.id %}"
+                  data-qxdlg-title="{{ work_item.workcycle.title }}"
+                  data-qxdlg-subtitle="Assigned by: {{ work_item.workcycle.created_by|default:'System' }}">
+                  <i class="fas fa-comment-dots me-1"></i> Discussion
+                </a>
+
+                <a href="{% url 'user_app:work-items' %}"
+                  class="btn btn-sm btn-outline-secondary">
+                  <i class="fas fa-arrow-left me-1"></i> Back
+                </a>
+
+              </div>
+
+
     </div>
   </div>
 
@@ -714,4 +725,5 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 </script>
+{% include "admin/page/modals/message_ui_modal.html" %}
 {% endblock %}

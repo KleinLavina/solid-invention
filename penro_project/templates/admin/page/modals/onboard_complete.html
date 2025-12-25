@@ -1,0 +1,206 @@
+<div class="completion-container">
+  <div class="completion-content">
+
+    <!-- SUCCESS ICON -->
+    <div class="success-icon">
+      <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+        <circle cx="40" cy="40" r="40" fill="#10B981" fill-opacity="0.1"/>
+        <circle cx="40" cy="40" r="32" fill="#10B981"/>
+        <path d="M28 40L36 48L52 32"
+              stroke="white"
+              stroke-width="4"
+              stroke-linecap="round"
+              stroke-linejoin="round"/>
+      </svg>
+    </div>
+
+    <!-- TITLE -->
+    <h1 class="completion-title">Setup Complete 🎉</h1>
+    <p class="completion-subtitle">
+      {{ user.get_full_name|default:user.username }} has been successfully onboarded.
+    </p>
+
+    <!-- ORG SUMMARY -->
+    <div class="org-summary">
+      <h3 class="summary-title">Organization Assignment</h3>
+
+      <div class="summary-grid">
+
+        <div class="summary-item">
+          <div class="summary-label">Division</div>
+          <div class="summary-value">
+            <span class="summary-icon">🏢</span>
+            {{ org_assignment.division.name }}
+          </div>
+        </div>
+
+        <div class="summary-item">
+          <div class="summary-label">Section</div>
+          <div class="summary-value">
+            <span class="summary-icon">📋</span>
+            {{ org_assignment.section.name }}
+          </div>
+        </div>
+
+        {% if org_assignment.service %}
+        <div class="summary-item">
+          <div class="summary-label">Service</div>
+          <div class="summary-value">
+            <span class="summary-icon">⚙️</span>
+            {{ org_assignment.service.name }}
+          </div>
+        </div>
+        {% endif %}
+
+        {% if org_assignment.unit %}
+        <div class="summary-item">
+          <div class="summary-label">Unit</div>
+          <div class="summary-value">
+            <span class="summary-icon">👥</span>
+            {{ org_assignment.unit.name }}
+          </div>
+        </div>
+        {% endif %}
+
+      </div>
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="completion-actions">
+      <button type="button"
+              class="btn-primary"
+              onclick="finishOnboarding()">
+        Done
+        <span class="arrow">✓</span>
+      </button>
+    </div>
+
+    <p class="help-text">
+      You can now manage this user from the Users dashboard.
+    </p>
+
+  </div>
+</div>
+
+<!-- STYLES -->
+<style>
+.completion-container {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+
+.completion-content {
+  max-width: 600px;
+  width: 100%;
+  text-align: center;
+}
+
+/* ICON */
+.success-icon {
+  margin-bottom: 2rem;
+  animation: scaleIn .5s ease-out;
+}
+
+@keyframes scaleIn {
+  0% { transform: scale(0); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* TITLE */
+.completion-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: .5rem;
+}
+
+.completion-subtitle {
+  color: #6b7280;
+  margin-bottom: 2rem;
+}
+
+/* SUMMARY */
+.org-summary {
+  background: #fff;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1.75rem;
+  margin-bottom: 2rem;
+  text-align: left;
+}
+
+.summary-title {
+  text-align: center;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+.summary-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.summary-label {
+  font-size: .75rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+}
+
+.summary-value {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  padding: .75rem;
+  background: #f9fafb;
+  border-radius: 8px;
+}
+
+.summary-icon {
+  font-size: 1.4rem;
+}
+
+/* ACTIONS */
+.completion-actions {
+  margin-bottom: 1.25rem;
+}
+
+.btn-primary {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  padding: .85rem 2.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background: #1e40af;
+}
+
+.arrow {
+  font-size: 1.2rem;
+}
+
+/* HELP */
+.help-text {
+  font-size: .85rem;
+  color: #9ca3af;
+}
+</style>
+
+<script>
+function finishOnboarding() {
+  const modal = bootstrap.Modal.getInstance(
+    document.getElementById("onboardModal")
+  );
+
+  if (modal) modal.hide();
+
+  // OPTIONAL: refresh users list
+  window.location.reload();
+}
+</script>

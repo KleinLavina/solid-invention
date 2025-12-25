@@ -1,98 +1,115 @@
-{% extends "admin/layout/base.html" %}
-{% block title %}Select Section{% endblock %}
-{% block content %}
-
 <div class="onboard-container">
-  <!-- Progress Bar -->
+
+  <!-- PROGRESS BAR -->
   <div class="progress-bar">
     <div class="progress-step completed">
       <div class="step-number">✓</div>
       <div class="step-label">Division</div>
     </div>
+
     <div class="progress-line completed"></div>
+
     <div class="progress-step active">
       <div class="step-number">2</div>
       <div class="step-label">Section</div>
     </div>
+
     <div class="progress-line"></div>
+
     <div class="progress-step">
       <div class="step-number">3</div>
       <div class="step-label">Service</div>
     </div>
+
     <div class="progress-line"></div>
+
     <div class="progress-step">
       <div class="step-number">4</div>
       <div class="step-label">Unit</div>
     </div>
   </div>
 
-  <!-- Content -->
+  <!-- CONTENT -->
   <div class="onboard-content">
+
     <div class="breadcrumb">
       <span class="breadcrumb-item">{{ division.name }}</span>
     </div>
 
     <h2 class="onboard-title">Select Your Section</h2>
-    <p class="onboard-subtitle">Which section within {{ division.name }} do you belong to?</p>
 
-    <form method="post" class="onboard-form">
+    <p class="onboard-subtitle">
+      Which section within <strong>{{ division.name }}</strong> do you belong to?
+    </p>
+
+    <!-- FORM -->
+    <form method="post"
+          class="onboard-form"
+          action="{% url 'admin_app:onboard-section' user.id %}">
       {% csrf_token %}
 
       <div class="options-grid">
         {% for section in sections %}
         <label class="option-card">
-          <input type="radio" name="section" value="{{ section.id }}" required>
+          <input type="radio"
+                 name="section"
+                 value="{{ section.id }}"
+                 required>
+
           <div class="option-content">
             <div class="option-icon">📋</div>
             <div class="option-name">{{ section.name }}</div>
           </div>
         </label>
         {% endfor %}
-
-        {% if not sections %}
-        <p class="text-muted">No sections available in this division.</p>
-        {% endif %}
       </div>
 
+      {% if not sections %}
+        <div class="text-muted small">
+          No sections available in this division.
+        </div>
+      {% endif %}
+
+      <!-- ACTIONS -->
       <div class="form-actions">
-        <a href="{% url 'admin_app:onboard-division' user.id %}" class="btn-secondary">
-          ← Back
-        </a>
-        <button type="submit" class="btn-primary" {% if not sections %}disabled{% endif %}>
+        <button type="submit"
+                class="btn-primary"
+                {% if not sections %}disabled{% endif %}>
           Continue
           <span class="arrow">→</span>
         </button>
       </div>
     </form>
+
   </div>
 </div>
 
+<!-- STYLES -->
 <style>
 .onboard-container {
-  max-width: 800px;
-  margin: 2rem auto;
-  padding: 0 1rem;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
 }
 
-/* Progress Bar */
+/* PROGRESS BAR */
 .progress-bar {
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 3rem;
-  padding: 0 2rem;
 }
 
 .progress-step {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
+  gap: .4rem;
 }
 
 .step-number {
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   background: #e5e7eb;
   color: #6b7280;
@@ -100,14 +117,12 @@
   align-items: center;
   justify-content: center;
   font-weight: 600;
-  font-size: 0.95rem;
-  transition: all 0.3s;
 }
 
 .progress-step.active .step-number {
   background: #2563eb;
   color: white;
-  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+  box-shadow: 0 0 0 4px rgba(37,99,235,.12);
 }
 
 .progress-step.completed .step-number {
@@ -116,9 +131,9 @@
 }
 
 .step-label {
-  font-size: 0.75rem;
-  color: #6b7280;
+  font-size: .75rem;
   font-weight: 500;
+  color: #6b7280;
 }
 
 .progress-step.active .step-label {
@@ -133,169 +148,94 @@
   width: 60px;
   height: 2px;
   background: #e5e7eb;
-  margin: 0 0.5rem;
-  margin-bottom: 1.5rem;
+  margin: 0 .75rem;
+  margin-bottom: 1.2rem;
 }
 
 .progress-line.completed {
   background: #10b981;
 }
 
-/* Breadcrumb */
-.breadcrumb {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-  font-size: 0.85rem;
-}
-
-.breadcrumb-item {
-  color: #6b7280;
-  font-weight: 500;
-}
-
-/* Content */
+/* CONTENT */
 .onboard-content {
   text-align: center;
 }
 
 .onboard-title {
-  font-size: 1.75rem;
+  font-size: 1.6rem;
   font-weight: 700;
-  color: #111827;
-  margin-bottom: 0.5rem;
+  margin-bottom: .5rem;
 }
 
 .onboard-subtitle {
-  font-size: 1rem;
   color: #6b7280;
   margin-bottom: 2rem;
 }
 
-/* Options Grid */
+/* OPTIONS */
 .options-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 1rem;
-  margin-bottom: 2rem;
 }
 
 .option-card {
-  position: relative;
   cursor: pointer;
   border: 2px solid #e5e7eb;
   border-radius: 12px;
-  padding: 1.5rem;
-  transition: all 0.2s;
-  background: white;
+  padding: 1.4rem;
+  transition: .2s;
+  background: #fff;
 }
 
 .option-card:hover {
   border-color: #2563eb;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
+  box-shadow: 0 4px 12px rgba(37,99,235,.15);
 }
 
-.option-card input[type="radio"] {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
+.option-card input {
+  display: none;
 }
 
-.option-card input[type="radio"]:checked ~ .option-content {
+.option-card input:checked + .option-content {
   color: #2563eb;
 }
 
-.option-card input[type="radio"]:checked ~ .option-content::after {
-  content: "✓";
-  position: absolute;
-  top: -0.5rem;
-  right: -0.5rem;
-  width: 24px;
-  height: 24px;
-  background: #2563eb;
-  color: white;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.75rem;
-  font-weight: 700;
-}
-
 .option-content {
-  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.75rem;
+  gap: .6rem;
 }
 
 .option-icon {
-  font-size: 2.5rem;
+  font-size: 2.2rem;
 }
 
 .option-name {
   font-weight: 600;
-  color: #111827;
-  font-size: 0.95rem;
-  text-align: center;
 }
 
-/* Form Actions */
+/* ACTIONS */
 .form-actions {
+  margin-top: 2rem;
   display: flex;
   justify-content: center;
-  gap: 1rem;
-  margin-top: 2rem;
 }
 
 .btn-primary {
   background: #2563eb;
-  color: white;
+  color: #fff;
   border: none;
-  padding: 0.75rem 2rem;
+  padding: .7rem 2.2rem;
   border-radius: 8px;
-  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: all 0.2s;
 }
 
-.btn-primary:hover:not(:disabled) {
+.btn-primary:hover {
   background: #1e40af;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
-}
-
-.btn-primary:disabled {
-  background: #d1d5db;
-  cursor: not-allowed;
-}
-
-.btn-secondary {
-  background: white;
-  color: #374151;
-  border: 2px solid #e5e7eb;
-  padding: 0.75rem 2rem;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 600;
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: all 0.2s;
-}
-
-.btn-secondary:hover {
-  border-color: #d1d5db;
-  background: #f9fafb;
 }
 
 .arrow {
@@ -303,22 +243,14 @@
 }
 
 @media (max-width: 640px) {
-  .progress-bar {
-    padding: 0;
-  }
-
   .progress-line {
     width: 30px;
   }
-
   .step-label {
     display: none;
   }
-
   .options-grid {
     grid-template-columns: 1fr;
   }
 }
 </style>
-
-{% endblock %}

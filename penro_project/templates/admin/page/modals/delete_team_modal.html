@@ -1,0 +1,55 @@
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteTeamModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Confirm Deletion</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete <strong id="deleteTeamName"></strong>?</p>
+        <p class="text-danger small">
+          <i class="fas fa-exclamation-triangle"></i>
+          This action cannot be undone. All sub-units will also be affected.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+          <i class="fas fa-trash"></i> Delete
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+async function performDelete(teamId, fromHierarchy) {
+  try {
+    const response = await fetch("{% url 'admin_app:delete-team' %}", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': '{{ csrf_token }}',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: JSON.stringify({ team_id: teamId })
+    });
+    
+    if (response.ok) {
+      bootstrap.Modal.getInstance(document.getElementById('deleteTeamModal')).hide();
+      
+      if (fromHierarchy) {
+        backToDivisions();
+      }
+      
+      setTimeout(() => window.location.reload(), 300);
+    } else {
+      const data = await response.json();
+      alert('Error: ' + (data.error || 'Failed to delete team'));
+    }
+  } catch (error) {
+    alert('Error: ' + error.message);
+  }
+}
+</script>

@@ -12,7 +12,7 @@ from .views.notification_views import admin_notifications
 from .views.document_views import admin_documents
 from .views.file_manager_views import admin_file_manager, create_folder, move_attachment, move_folder, rename_folder, delete_file, delete_folder, download_file, upload_files
 from .views.all_files_views import all_files_uploaded
-
+from .views.organization_views import manage_organization, create_team, edit_team, delete_team, view_hierarchy
 
 app_name = "admin_app"
 
@@ -104,4 +104,11 @@ urlpatterns = [
     path("api/sections/<int:division_id>/", sections_by_division),
     path("api/services/<int:section_id>/", services_by_section),
     path("api/units/", units_by_parent),
+
+
+     path('organization/', manage_organization, name='manage-organization'),
+    path('organization/create/', create_team, name='create-team'),
+    path('organization/edit/', edit_team, name='edit-team'),
+    path('organization/delete/', delete_team, name='delete-team'),
+    path('organization/hierarchy/<int:team_id>/', view_hierarchy, name='view-hierarchy'),
 ]

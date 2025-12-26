@@ -1,0 +1,151 @@
+<div class="modal fade" id="createTeamModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Create Organizational Unit</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <form id="createTeamForm"
+            method="post"
+            action="{% url 'admin_app:create-team' %}">
+        {% csrf_token %}
+
+        <div class="modal-body">
+
+          <!-- TEAM TYPE -->
+          <div class="mb-3">
+            <label class="form-label">Unit Type</label>
+            <select class="form-select" id="teamType" name="team_type" required>
+              <option value="">Select type</option>
+              <option value="division">Division</option>
+              <option value="section">Section</option>
+              <option value="service">Service</option>
+              <option value="unit">Unit</option>
+            </select>
+          </div>
+
+          <!-- NAME -->
+          <div class="mb-3">
+            <label class="form-label">Unit Name</label>
+            <input type="text"
+                   class="form-control"
+                   name="name"
+                   required
+                   placeholder="e.g. Information Technology">
+          </div>
+
+          <!-- PARENT CARDS -->
+          <div class="mb-3 d-none" id="parentCardsWrapper">
+            <label class="form-label">Select Parent Unit</label>
+
+            <div class="row g-2" id="parentCards">
+              {% for team in teams %}
+              <div class="col-md-6 parent-card"
+                   data-id="{{ team.id }}"
+                   data-type="{{ team.team_type }}">
+                <div class="card h-100 selectable-card">
+                  <div class="card-body py-2">
+                    <strong>{{ team.name }}</strong>
+                    <div class="text-muted small">
+                      {{ team.get_team_type_display }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+
+            <!-- hidden input -->
+            <input type="hidden" name="parent" id="parentInput">
+          </div>
+
+          <div class="text-danger small d-none" id="teamError"></div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button type="button"
+                  class="btn btn-secondary"
+                  data-bs-dismiss="modal">
+            Cancel
+          </button>
+          <button class="btn btn-primary" type="submit">
+            Create
+          </button>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+</div>
+<style>
+.selectable-card {
+  cursor: pointer;
+  border: 1px solid #e5e7eb;
+  transition: all .15s ease;
+}
+
+.selectable-card:hover {
+  border-color: #2563eb;
+  background: #f8fafc;
+}
+
+.parent-card.selected .selectable-card {
+  border-color: #2563eb;
+  background: #eef2ff;
+}
+
+.parent-card.disabled {
+  display: none;
+}
+</style>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const teamType = document.getElementById("teamType");
+  const wrapper = document.getElementById("parentCardsWrapper");
+  const cards = document.querySelectorAll(".parent-card");
+  const parentInput = document.getElementById("parentInput");
+
+  const rules = {
+    section: ["division"],
+    service: ["section"],
+    unit: ["section", "service"]
+  };
+
+  teamType.addEventListener("change", () => {
+    const type = teamType.value;
+
+    parentInput.value = "";
+    cards.forEach(c => {
+      c.classList.remove("selected", "disabled");
+    });
+
+    if (!rules[type]) {
+      wrapper.classList.add("d-none");
+      return;
+    }
+
+    wrapper.classList.remove("d-none");
+
+    cards.forEach(card => {
+      const parentType = card.dataset.type;
+      if (!rules[type].includes(parentType)) {
+        card.classList.add("disabled");
+      }
+    });
+  });
+
+  cards.forEach(card => {
+    card.addEventListener("click", () => {
+      if (card.classList.contains("disabled")) return;
+
+      cards.forEach(c => c.classList.remove("selected"));
+      card.classList.add("selected");
+      parentInput.value = card.dataset.id;
+    });
+  });
+});
+</script>

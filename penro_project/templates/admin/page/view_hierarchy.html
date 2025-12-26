@@ -1,0 +1,328 @@
+{% extends "admin/layout/base.html" %}
+{% block title %}{{ division.name }} - Hierarchy{% endblock %}
+{% block content %}
+
+<div class="hierarchy-container">
+  <div class="hierarchy-header">
+    <a href="{% url 'admin_app:manage-organization' %}" class="btn-back">
+      <i class="fas fa-arrow-left"></i>
+      Back to Divisions
+    </a>
+    <div class="division-title">
+      <h3>{{ division.name }}</h3>
+      <span class="badge badge-division">{{ division.get_team_type_display }}</span>
+    </div>
+  </div>
+
+  <div class="org-chart-container">
+    <div class="org-chart">
+      <ul class="org-tree">
+        {% include "admin/page/partials/team_node.html" with team=division %}
+      </ul>
+    </div>
+  </div>
+</div>
+
+<style>
+.hierarchy-container {
+  padding: 20px;
+  min-height: 100vh;
+}
+
+.hierarchy-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 30px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.btn-back {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  text-decoration: none;
+  color: #374151;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.btn-back:hover {
+  background: #f9fafb;
+  border-color: #2563eb;
+  color: #2563eb;
+}
+
+.division-title {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.division-title h3 {
+  margin: 0;
+  color: #111827;
+}
+
+.badge {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.badge-division {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.org-chart-container {
+  overflow-x: auto;
+  padding: 30px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.org-chart {
+  display: inline-block;
+  min-width: 100%;
+}
+
+.org-tree {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.org-node {
+  position: relative;
+  margin: 20px 0;
+  padding-left: 0;
+}
+
+.org-node::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 20px;
+  width: 2px;
+  height: 100%;
+  background: #cbd5e1;
+}
+
+.org-node:last-child::before {
+  height: 50px;
+}
+
+.org-node:first-child::before {
+  display: none;
+}
+
+.org-label {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 18px;
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  margin-left: 40px;
+  margin-bottom: 10px;
+  font-weight: 500;
+  color: #111827;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+  transition: all 0.2s;
+}
+
+.org-label:hover {
+  border-color: #2563eb;
+  box-shadow: 0 4px 8px rgba(37, 99, 235, 0.2);
+}
+
+.org-label::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -20px;
+  width: 20px;
+  height: 2px;
+  background: #cbd5e1;
+}
+
+.org-node:first-child > .org-label {
+  margin-left: 0;
+}
+
+.org-node:first-child > .org-label::before {
+  display: none;
+}
+
+.org-label .type {
+  padding: 3px 10px;
+  background: #f3f4f6;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 600;
+}
+
+.org-label .count {
+  color: #6b7280;
+  font-weight: normal;
+  font-size: 13px;
+}
+
+.org-label .actions {
+  display: flex;
+  gap: 5px;
+  margin-left: 10px;
+}
+
+.btn-icon-action {
+  background: transparent;
+  border: none;
+  padding: 6px 10px;
+  cursor: pointer;
+  color: #6b7280;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.btn-icon-action:hover {
+  background: #f3f4f6;
+  color: #2563eb;
+}
+
+.btn-icon-action.btn-danger:hover {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.team-users {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0 10px 60px;
+}
+
+.user-item {
+  padding: 10px 14px;
+  background: #eff6ff;
+  border-left: 3px solid #3b82f6;
+  border-radius: 6px;
+  margin: 6px 0;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-item .role {
+  margin-left: auto;
+  padding: 3px 10px;
+  background: white;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.team-children {
+  list-style: none;
+  padding-left: 0;
+  margin-left: 20px;
+}
+
+.org-node.division .org-label {
+  border-color: #3b82f6;
+  background: linear-gradient(135deg, #eff6ff 0%, white 100%);
+}
+
+.org-node.section .org-label {
+  border-color: #8b5cf6;
+  background: linear-gradient(135deg, #f5f3ff 0%, white 100%);
+}
+
+.org-node.service .org-label {
+  border-color: #10b981;
+  background: linear-gradient(135deg, #d1fae5 0%, white 100%);
+}
+
+.org-node.unit .org-label {
+  border-color: #f59e0b;
+  background: linear-gradient(135deg, #fef3c7 0%, white 100%);
+}
+
+@media (max-width: 768px) {
+  .hierarchy-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .org-chart-container {
+    padding: 15px;
+  }
+}
+</style>
+
+<script>
+function editTeam(teamId, teamName, teamType) {
+  document.getElementById('editTeamId').value = teamId;
+  document.getElementById('editTeamName').value = teamName;
+  document.getElementById('editTeamType').value = teamType.charAt(0).toUpperCase() + teamType.slice(1);
+  
+  var modal = new bootstrap.Modal(document.getElementById('editTeamModal'));
+  modal.show();
+}
+
+function deleteTeam(teamId, teamName) {
+  document.getElementById('deleteTeamName').textContent = teamName;
+  
+  var modal = new bootstrap.Modal(document.getElementById('deleteTeamModal'));
+  modal.show();
+  
+  document.getElementById('confirmDeleteBtn').onclick = function() {
+    performDelete(teamId);
+  };
+}
+
+function performDelete(teamId) {
+  var csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+  
+  fetch("{% url 'admin_app:delete-team' %}", {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': csrfToken,
+      'X-Requested-With': 'XMLHttpRequest'
+    },
+    body: JSON.stringify({ team_id: teamId })
+  })
+  .then(function(response) {
+    if (response.ok) {
+      bootstrap.Modal.getInstance(document.getElementById('deleteTeamModal')).hide();
+      setTimeout(function() {
+        window.location.href = "{% url 'admin_app:manage-organization' %}";
+      }, 300);
+    } else {
+      return response.json().then(function(data) {
+        alert('Error: ' + (data.error || 'Failed to delete team'));
+      });
+    }
+  })
+  .catch(function(error) {
+    alert('Error: ' + error.message);
+  });
+}
+</script>
+
+{% include "admin/page/modals/edit_team_modal.html" %}
+{% include "admin/page/modals/delete_team_modal.html" %}
+{% endblock %}

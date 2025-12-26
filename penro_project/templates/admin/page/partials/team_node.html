@@ -1,0 +1,30 @@
+<li class="org-node {{ team.team_type }}">
+
+  <div class="org-label">
+    📁 {{ team.name }}
+    <span class="type">{{ team.get_team_type_display }}</span>
+    {% if team.users %}
+      <small class="count">({{ team.users|length }} users)</small>
+    {% endif %}
+  </div>
+
+  {% if team.users %}
+    <ul class="team-users">
+      {% for user in team.users %}
+        <li class="user-item">
+          👤 {{ user.get_full_name|default:user.username }}
+          <span class="role">{{ user.get_login_role_display }}</span>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  {% if team.children_list %}
+    <ul class="team-children">
+      {% for child in team.children_list %}
+        {% include "admin/page/partials/team_node.html" with team=child %}
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+</li>

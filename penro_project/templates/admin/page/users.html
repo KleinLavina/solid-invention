@@ -20,7 +20,8 @@
      class="btn-add-user"
      data-bs-toggle="modal"
      data-bs-target="#createUserModal">
-    + Add User
+    <span class="btn-icon">+</span>
+    Add / Register A User
   </a>
 </div>
 
@@ -33,41 +34,66 @@
   {% for user in users %}
   <div class="user-card">
 
-    <span class="badge badge-division">
-      {{ user.division.name|default:"No Division" }}
-    </span>
+  <!-- DIVISION -->
+  <span class="badge badge-division">
+    {{ user.org_assignment.division.name|default:"No Division" }}
+  </span>
 
-    <span class="badge badge-role {% if user.login_role == 'admin' %}admin{% else %}user{% endif %}">
-      {{ user.get_login_role_display }}
-    </span>
+  <!-- ROLE -->
+  <span class="badge badge-role {% if user.login_role == 'admin' %}admin{% else %}user{% endif %}">
+    {{ user.get_login_role_display }}
+  </span>
 
-    <div class="user-center">
-      <img class="avatar"
-           src="https://ui-avatars.com/api/?name={{ user.get_full_name|default:user.username }}&background=2563eb&color=fff">
-      <div class="user-name">
-        {{ user.get_full_name|default:user.username }}
-      </div>
-      <div class="user-position">
-        {{ user.position_title|default:"No position title" }}
-      </div>
+  <!-- CENTER -->
+  <div class="user-center">
+    <img class="avatar"
+         src="https://ui-avatars.com/api/?name={{ user.get_full_name|default:user.username }}&background=2563eb&color=fff">
+    <div class="user-name">
+      {{ user.get_full_name|default:user.username }}
     </div>
-
-    <hr>
-
-    <div class="user-details">
-      <div><strong>Username:</strong> {{ user.username }}</div>
-      <div><strong>Email:</strong> {{ user.email|default:"—" }}</div>
-      <div>
-        <strong>Status:</strong>
-        {% if user.is_active %}
-          <span class="status active">Active</span>
-        {% else %}
-          <span class="status inactive">Inactive</span>
-        {% endif %}
-      </div>
+    <div class="user-position">
+      {{ user.position_title|default:"No position title" }}
     </div>
-
   </div>
+
+  <hr>
+
+  <!-- ORG INFO -->
+  <div class="user-org">
+    <div>
+      <strong>Section:</strong>
+      {{ user.org_assignment.section.name|default:"—" }}
+    </div>
+
+    <div>
+      <strong>Service:</strong>
+      {{ user.org_assignment.service.name|default:"—" }}
+    </div>
+
+    <div>
+      <strong>Unit:</strong>
+      {{ user.org_assignment.unit.name|default:"—" }}
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- DETAILS -->
+  <div class="user-details">
+    <div><strong>Username:</strong> {{ user.username }}</div>
+    <div><strong>Email:</strong> {{ user.email|default:"—" }}</div>
+    <div>
+      <strong>Status:</strong>
+      {% if user.is_active %}
+        <span class="status active">Active</span>
+      {% else %}
+        <span class="status inactive">Inactive</span>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+
   {% endfor %}
 </div>
 
@@ -81,11 +107,16 @@
 <div class="modal fade"
      id="onboardModal"
      tabindex="-1"
-     aria-hidden="true">
-  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-    <div class="modal-content">
-      <div class="modal-body" id="onboardModalBody">
-        <!-- onboarding content injected here -->
+     aria-hidden="true"
+     data-bs-backdrop="static"
+     data-bs-keyboard="false">
+  <div class="modal-dialog modal-dialog-centered modal-onboard-compact">
+    <div class="modal-content onboard-modal-content">
+      <div class="modal-body p-0" id="onboardModalBody">
+        <div class='loading-spinner'>
+          <div class="spinner"></div>
+          <p>Loading...</p>
+        </div>
       </div>
     </div>
   </div>
@@ -95,6 +126,19 @@
      STYLES
 ========================= -->
 <style>
+/* ===========================
+   HEADER STYLES
+=========================== */
+/* 👇 Controls the modal WIDTH */
+/* Modal width follows content */
+#onboardModal .modal-dialog {
+  width: fit-content;
+  max-width: 90vw;          /* safety on small screens */
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
 .users-header{
   display:flex;
   justify-content:space-between;
@@ -112,14 +156,35 @@
 }
 
 .btn-add-user{
-  background:#2563eb;
+  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
   color:#fff;
-  padding:.45rem .85rem;
-  border-radius:6px;
-  font-size:.85rem;
+  padding:.65rem 1.25rem;
+  border-radius:10px;
+  font-size:.9rem;
+  font-weight:600;
   text-decoration:none;
+  display:inline-flex;
+  align-items:center;
+  gap:0.5rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }
 
+.btn-add-user:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+  background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+  color:#fff;
+}
+
+.btn-icon{
+  font-size:1.2rem;
+  line-height:1;
+}
+
+/* ===========================
+   USER GRID
+=========================== */
 .user-grid{
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
@@ -132,6 +197,13 @@
   border:1px solid #e5e7eb;
   border-radius:10px;
   padding:1.25rem;
+  transition: all 0.3s ease;
+}
+
+.user-card:hover{
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  border-color: #cbd5e1;
 }
 
 .badge{
@@ -139,99 +211,359 @@
   font-size:.7rem;
   padding:.25rem .6rem;
   border-radius:999px;
+  font-weight:600;
 }
 
-.badge-division{ top:.6rem; left:.6rem; background:#f3f4f6; }
+.badge-division{ 
+  top:.6rem; 
+  left:.6rem; 
+  background:#f3f4f6;
+  color:#6b7280;
+}
+
 .badge-role{ top:.6rem; right:.6rem; color:#fff; }
 .badge-role.admin{ background:#dc2626; }
 .badge-role.user{ background:#2563eb; }
+
+.user-center{
+  text-align:center;
+  margin-top:1.5rem;
+  margin-bottom:1rem;
+}
 
 .avatar{
   width:80px;
   height:80px;
   border-radius:50%;
+  margin-bottom:0.75rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.user-name{
+  font-weight:600;
+  font-size:1.1rem;
+  margin-bottom:0.25rem;
+}
+
+.user-position{
+  color:#6b7280;
+  font-size:0.875rem;
+}
+
+.user-org, .user-details{
+  font-size:0.875rem;
+}
+
+.user-org > div, .user-details > div{
+  padding:0.5rem 0;
+}
+
+.status{
+  font-weight:600;
 }
 
 .status.active{ color:#16a34a; }
 .status.inactive{ color:#dc2626; }
+
+/* ===========================
+   MODAL ANIMATIONS
+=========================== */
+.modal.fade .modal-dialog {
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: scale(0.9) translateY(-30px);
+  opacity: 0;
+}
+
+.modal.show .modal-dialog {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+}
+
+/* Slide transitions for onboarding */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutLeft {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+}
+
+.onboard-slide-enter {
+  animation: slideInRight 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.onboard-slide-exit {
+  animation: slideOutLeft 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ===========================
+   MODAL CONTENT
+=========================== */
+.modal-content {
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+}
+
+.onboard-modal-content {
+  background: #fafbfc;
+}
+
+/* ===========================
+   LOADING SPINNER
+=========================== */
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  gap: 1rem;
+}
+
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid #e5e7eb;
+  border-top-color: #2563eb;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-spinner p {
+  color: #6b7280;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+/* ===========================
+   RESPONSIVE
+=========================== */
+@media (max-width: 768px) {
+  .users-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .btn-add-user {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .user-grid {
+    grid-template-columns: 1fr;
+  }
+}
 </style>
 
 <!-- =========================
-     JAVASCRIPT (ALL LOGIC HERE)
+     JAVASCRIPT
 ========================= -->
 <script>
 document.addEventListener("DOMContentLoaded", function () {
 
-  /* CREATE USER SUBMIT */
+  /* =====================================================
+     GUARD: prevent double-binding (CRITICAL FIX)
+  ===================================================== */
+  if (window.__createUserBound) return;
+  window.__createUserBound = true;
+
+  /* =====================================================
+     CREATE USER SUBMIT
+  ===================================================== */
   const createForm = document.getElementById("createUserForm");
+  const createModalEl = document.getElementById("createUserModal");
 
   if (createForm) {
-    createForm.addEventListener("submit", function (e) {
+    createForm.addEventListener("submit", async function (e) {
       e.preventDefault();
 
-      fetch(createForm.action, {
-        method: "POST",
-        body: new FormData(createForm),
-        headers: { "X-Requested-With": "XMLHttpRequest" }
-      })
-      .then(res => res.text())
-      .then(text => JSON.parse(text))
-      .then(data => {
-        if (!data.success) {
-          alert("Form error. Check inputs.");
-          return;
+      const submitBtn = createForm.querySelector('button[type="submit"]');
+      if (submitBtn.disabled) return; // HARD STOP double submit
+
+      const originalHTML = submitBtn.innerHTML;
+      submitBtn.disabled = true;
+      submitBtn.innerHTML =
+        '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+
+      // Clear old validation errors
+      createForm.querySelectorAll(".error-message").forEach(el => el.remove());
+      createForm.querySelectorAll(".error").forEach(el => el.classList.remove("error"));
+
+      try {
+        const response = await fetch(createForm.action, {
+          method: "POST",
+          body: new FormData(createForm),
+          headers: { "X-Requested-With": "XMLHttpRequest" }
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          // Show validation errors inline
+          if (data.errors) {
+            Object.entries(data.errors).forEach(([field, messages]) => {
+              const input = createForm.querySelector(`[name="${field}"]`);
+              if (!input) return;
+
+              input.classList.add("error");
+
+              const msg = document.createElement("div");
+              msg.className = "error-message";
+              msg.textContent = messages[0];
+              input.closest(".form-field")?.appendChild(msg);
+            });
+            throw new Error("Validation failed");
+          }
+          throw new Error("Server error");
         }
 
-        bootstrap.Modal
-          .getInstance(document.getElementById("createUserModal"))
-          .hide();
+        if (!data.success) {
+          throw new Error("Unknown failure");
+        }
 
-        loadOnboarding(data.onboard_url);
-      })
-      .catch(err => {
+        /* ===============================
+           SUCCESS → CLOSE MODAL
+        =============================== */
+        const modal = bootstrap.Modal.getInstance(createModalEl);
+        modal.hide();
+
+        setTimeout(() => {
+          loadOnboarding(data.onboard_url);
+        }, 400);
+
+      } catch (err) {
         console.error(err);
-        alert("Unexpected error. Please try again.");
-      });
+        alert("Unable to process request. Please check inputs.");
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalHTML;
+      }
     });
   }
 
-  /* ONBOARDING LOADER */
-  window.loadOnboarding = function (url) {
+  /* =====================================================
+     ONBOARDING LOADER
+  ===================================================== */
+  window.loadOnboarding = async function (url) {
     const modalEl = document.getElementById("onboardModal");
     const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
     const body = document.getElementById("onboardModalBody");
 
-    body.innerHTML = "<div class='text-center py-5'>Loading…</div>";
+    body.innerHTML = `
+      <div class="loading-spinner">
+        <div class="spinner"></div>
+        <p>Loading...</p>
+      </div>
+    `;
 
-    fetch(url, { headers: { "X-Requested-With": "XMLHttpRequest" } })
-      .then(res => res.text())
-      .then(html => {
-        body.innerHTML = html;
-        modal.show();
+    modal.show();
+
+    try {
+      const response = await fetch(url, {
+        headers: { "X-Requested-With": "XMLHttpRequest" }
       });
+
+      const html = await response.text();
+      const temp = document.createElement("div");
+      temp.innerHTML = html;
+
+      if (temp.firstElementChild) {
+        temp.firstElementChild.classList.add("onboard-slide-enter");
+      }
+
+      body.innerHTML = temp.innerHTML;
+    } catch (err) {
+      console.error(err);
+      body.innerHTML = `
+        <div class="loading-spinner">
+          <p style="color:#dc2626;">Failed to load onboarding.</p>
+        </div>
+      `;
+    }
   };
 
-  /* ONBOARDING STEP SUBMIT */
-  document.addEventListener("submit", function (e) {
+  /* =====================================================
+     ONBOARDING STEP SUBMIT (DELEGATED)
+  ===================================================== */
+  document.addEventListener("submit", async function (e) {
     const form = e.target.closest(".onboard-form");
     if (!form) return;
 
     e.preventDefault();
 
-    fetch(form.action, {
-      method: "POST",
-      body: new FormData(form),
-      headers: { "X-Requested-With": "XMLHttpRequest" }
-    })
-    .then(res => res.json())
-    .then(data => {
+    const submitBtn = form.querySelector('button[type="submit"]');
+    if (submitBtn.disabled) return;
+
+    const originalHTML = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML =
+      '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+
+    const currentContent = document.querySelector("#onboardModalBody > *");
+    currentContent?.classList.add("onboard-slide-exit");
+
+    try {
+      const response = await fetch(form.action, {
+        method: "POST",
+        body: new FormData(form),
+        headers: { "X-Requested-With": "XMLHttpRequest" }
+      });
+
+      const data = await response.json();
+
       if (data.next) {
         loadOnboarding(data.next);
+      } else if (data.completed) {
+        const modal = bootstrap.Modal.getInstance(
+          document.getElementById("onboardModal")
+        );
+        modal.hide();
+        setTimeout(() => window.location.reload(), 400);
       }
-    });
+    } catch (err) {
+      console.error(err);
+      alert("Onboarding failed. Please retry.");
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalHTML;
+    }
   });
+
+  /* =====================================================
+     COMPLETION HANDLER
+  ===================================================== */
+  window.finishOnboarding = function () {
+    const modal = bootstrap.Modal.getInstance(
+      document.getElementById("onboardModal")
+    );
+    modal?.hide();
+    setTimeout(() => window.location.reload(), 400);
+  };
 
 });
 </script>
 
-{% endblock %}
+
+{% endblock %}  

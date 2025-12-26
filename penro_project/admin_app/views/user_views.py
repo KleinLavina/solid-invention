@@ -33,49 +33,49 @@ def users(request):
 
 @login_required
 def create_user(request):
-    if request.method == "POST":
-        form = UserCreateForm(request.POST)
+    """
+    AJAX-only user creation endpoint.
+    Always returns JSON.
+    """
 
-        if form.is_valid():
-            user = form.save()
-            request.session[f"user_form_{user.id}"] = request.POST
-
-            # ✅ ALWAYS JSON for AJAX
-            if request.headers.get("x-requested-with") == "XMLHttpRequest":
-                return JsonResponse({
-                    "success": True,
-                    "onboard_url": reverse(
-                        "admin_app:onboard-division",
-                        args=[user.id]
-                    )
-                })
-
-            # Non-AJAX fallback only
-            return redirect(
-                "admin_app:onboard-division",
-                user_id=user.id
-            )
-
-        # ❗ FORM INVALID
-        if request.headers.get("x-requested-with") == "XMLHttpRequest":
-            return JsonResponse({
+    # ❌ Block GET requests
+    if request.method != "POST":
+        return JsonResponse(
+            {
                 "success": False,
-                "errors": form.errors
-            }, status=400)
-
-        # Non-AJAX fallback
-        return render(
-            request,
-            "admin/page/modals/create_user_modal.html",
-            {"form": form}
+                "error": "Invalid request method"
+            },
+            status=405
         )
 
-    # GET request (open modal)
-    form = UserCreateForm()
-    return render(
-        request,
-        "admin/page/modals/create_user_modal.html",
-        {"form": form}
+    form = UserCreateForm(request.POST)
+
+    # ❌ Invalid form → return errors
+    if not form.is_valid():
+        return JsonResponse(
+            {
+                "success": False,
+                "errors": form.errors
+            },
+            status=400
+        )
+
+    # ✅ Create user
+    user = form.save()
+
+    # (Optional) Store raw form data for onboarding if you still need it
+    request.session[f"user_form_{user.id}"] = request.POST
+
+    # ✅ SUCCESS (always JSON)
+    return JsonResponse(
+        {
+            "success": True,
+            "onboard_url": reverse(
+                "admin_app:onboard-division",
+                args=[user.id]
+            )
+        },
+        status=201
     )
 
 # ============================================
@@ -272,41 +272,45 @@ def onboard_unit(request, user_id):
 
 @login_required
 def onboard_complete(request, user_id):
+    """
+    Final onboarding step.
+    This view MUST return HTML because it is rendered inside a modal.
+    """
+
     user = get_object_or_404(User, id=user_id)
 
+    # Pull onboarding data from session
     division_id = request.session.get(f"onboard_{user.id}_division")
     section_id = request.session.get(f"onboard_{user.id}_section")
     service_id = request.session.get(f"onboard_{user.id}_service")
     unit_id = request.session.get(f"onboard_{user.id}_unit")
 
+    # Safety check: onboarding incomplete → restart
     if not division_id or not section_id:
         return redirect("admin_app:onboard-division", user_id=user.id)
 
-    org_assignment, created = OrgAssignment.objects.update_or_create(
+    # Create or update organization assignment
+    org_assignment, _ = OrgAssignment.objects.update_or_create(
         user=user,
         defaults={
             "division_id": division_id,
             "section_id": section_id,
-            "service_id": service_id if service_id else None,
-            "unit_id": unit_id if unit_id else None,
+            "service_id": service_id or None,
+            "unit_id": unit_id or None,
         }
     )
 
-    # Clear onboarding session
-    for key in [
+    # Clear onboarding session data
+    for key in (
         f"onboard_{user.id}_division",
         f"onboard_{user.id}_section",
         f"onboard_{user.id}_service",
         f"onboard_{user.id}_unit",
         f"user_form_{user.id}",
-    ]:
+    ):
         request.session.pop(key, None)
 
-    if request.headers.get("x-requested-with") == "XMLHttpRequest":
-        return JsonResponse({
-            "completed": True
-        })
-
+    # ✅ ALWAYS return HTML (no JSON here)
     return render(
         request,
         "admin/page/modals/onboard_complete.html",
